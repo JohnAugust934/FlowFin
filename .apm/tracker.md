@@ -13,9 +13,9 @@ title: FlowFin
 | Task | Status | Agent | Branch |
 |------|--------|-------|--------|
 | 2.1 | Done | backend-agent | |
-| 2.2 | Active | backend-agent | feature/dashboard-agregados |
+| 2.2 | Done | backend-agent | |
 | 2.3 | Active | frontend-agent | feature/ui-registro-historico |
-| 2.4 | Waiting: 2.2 | frontend-agent | |
+| 2.4 | Ready | frontend-agent | |
 | 2.5 | Active | frontend-agent | feature/ui-registro-historico |
 
 ## Worker Tracking
@@ -23,7 +23,7 @@ title: FlowFin
 | Agent | Instance | Notes |
 |-------|----------|-------|
 | devops-docs-agent | 1 | Initialized; completed Task 1.1 (next work in Stage 6) |
-| backend-agent | 1 | Completed 1.3, 1.4, 2.1; dispatched 2.2 |
+| backend-agent | 1 | Completed 1.3, 1.4, 2.1, 2.2; idle (Stage 2 backend done) |
 | frontend-agent | 1 | Completed 1.2; dispatched batch 2.3+2.5 |
 
 ## Version Control
@@ -40,6 +40,7 @@ title: FlowFin
 - GitHub remote (`https://github.com/JohnAugust934/FlowFin`) not connected; deferred to Task 6.2, guided User action. No pushes by default. `.apm/` planning docs tracked; `.apm/worktrees/` and `.apm/bus/` gitignored.
 - Cleanup pending: `.apm/worktrees/auth-seguranca` dir is OS-locked ("Device or resource busy") — git worktree already pruned; delete the leftover folder once the locking process exits.
 - 2.1 done/merged. API contract (consumed by 2.3/2.5 and offline 5.2): `amount` in integer centavos in/out; writes need `Accept: application/json` + CSRF; categories list NOT paginated (justified — small set). Factories for Transaction/Category created.
-- Active parallel dispatch (Stage 2): Backend 2.2 (worktree dashboard-agregados) ∥ Frontend batch 2.3+2.5 (worktree ui-registro-historico). 2.4 (dashboard UI) waits on 2.2.
+- 2.2 done/merged. Dashboard endpoint for 2.4: `GET /api/dashboard?month=aaaa-mm` → `{month, totals{entrou,saiu,sobrou}, by_category[], needs_vs_wants{necessidade,desejo,sem_classificacao,*_pct}}`, all centavos. Cache invalidation via `TransactionObserver` (`#[ObservedBy]` on Transaction model — preserve it).
+- Wait state: Frontend busy with batch 2.3+2.5 (worktree ui-registro-historico). 2.4 Ready, dispatch to Frontend once the batch report returns. Backend idle. Next action: User returns Frontend batch report (`/apm-5-check-reports`).
 - GIT LESSON (do not repeat): never delete/recreate a feature branch a Worker is using — a Worker commit (2.1, `5ddba2f`) was nearly lost by branch -D + recreate; recovered via the commit object. Manager edits planning docs on `develop` only; feature branches must not modify tracker/index (avoids merge conflicts via 3-way merge).
 
