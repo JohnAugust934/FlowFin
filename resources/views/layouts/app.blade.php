@@ -47,6 +47,11 @@
             @include('layouts.bottom-nav')
         </div>
 
+        <!-- Formulário global de transação (registro rápido / edição) -->
+        @auth
+            <x-transaction-form />
+        @endauth
+
         <!-- Container de toasts (feedback visual imediato) -->
         <x-toast />
 

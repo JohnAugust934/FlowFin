@@ -9,6 +9,11 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Evita flash de conteúdo Alpine antes da inicialização. */
+[x-cloak] {
+    display: none !important;
+}
+
 @layer components {
     /* Botão base reutilizado pelos botões do design system. */
     .btn {

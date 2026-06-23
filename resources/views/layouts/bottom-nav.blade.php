@@ -2,6 +2,8 @@
 @php
     $isDashboard = request()->routeIs('dashboard');
     $isProfile = request()->routeIs('profile.*');
+    $isHistory = request()->routeIs('transactions.history');
+    $isCategories = request()->routeIs('categories.manage');
     $itemBase = 'flex flex-col items-center justify-center gap-0.5 flex-1 py-2 text-xs font-medium transition';
     $active = 'text-brand-600';
     $idle = 'text-neutral-400 hover:text-neutral-600';
@@ -19,21 +21,22 @@
         </a>
 
         {{-- Transações --}}
-        <a href="#" class="{{ $itemBase }} {{ $idle }}">
+        <a href="{{ route('transactions.history') }}" class="{{ $itemBase }} {{ $isHistory ? $active : $idle }}">
             <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24" aria-hidden="true">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M7 7h13M7 7l3-3M7 7l3 3M17 17H4m13 0l-3-3m3 3l-3 3" />
             </svg>
             Transações
         </a>
 
-        {{-- Botão central de ação (Nova entrada/saída) --}}
+        {{-- Botão central de ação (abre o registro rápido de transação) --}}
         <div class="flex-1 flex justify-center">
-            <a href="#" aria-label="Nova transação"
+            <button type="button" aria-label="Nova transação"
+               onclick="window.dispatchEvent(new CustomEvent('open-quick-add'))"
                class="-mt-5 flex items-center justify-center w-14 h-14 rounded-full bg-gradient-brand text-white shadow-lg shadow-brand-600/30 hover:opacity-95 transition">
                 <svg class="w-7 h-7" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M12 5v14M5 12h14" />
                 </svg>
-            </a>
+            </button>
         </div>
 
         {{-- Metas --}}

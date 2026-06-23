@@ -24,6 +24,10 @@ Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+
+    // Telas de transações e categorias (consomem a API JSON via JS no cliente).
+    Route::view('/transacoes', 'transactions.history')->name('transactions.history');
+    Route::view('/categorias', 'categories.manage')->name('categories.manage');
 });
 
 // API JSON autenticada por sessão (base para a UI e a sincronização offline do PWA).
