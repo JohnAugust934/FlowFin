@@ -93,7 +93,7 @@
                             this.push({ type: 'success', message: @json(session('success')) });
                         @endif
                         @if (session('status'))
-                            this.push({ type: 'success', message: @json(session('status')) });
+                            this.push({ type: 'success', message: @json(__(session('status'))) });
                         @endif
                         @if (session('error'))
                             this.push({ type: 'error', message: @json(session('error')) });

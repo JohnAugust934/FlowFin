@@ -47,18 +47,27 @@
             @endif
         </div>
 
+        <div>
+            <x-input-label for="monthly_income" :value="__('Estimated monthly income')" />
+            <div class="relative mt-1">
+                <span class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3 text-sm text-neutral-500">R$</span>
+                <x-text-input
+                    id="monthly_income"
+                    name="monthly_income"
+                    type="text"
+                    inputmode="decimal"
+                    class="block w-full pl-9"
+                    placeholder="0,00"
+                    :value="old('monthly_income') !== null ? \App\Support\Money::format((int) old('monthly_income')) : \App\Support\Money::format($user->monthly_income)"
+                    autocomplete="off"
+                />
+            </div>
+            <p class="mt-1 text-xs text-neutral-500">{{ __('Used to personalize your summaries. Optional.') }}</p>
+            <x-input-error class="mt-2" :messages="$errors->get('monthly_income')" />
+        </div>
+
         <div class="flex items-center gap-4">
             <x-primary-button>{{ __('Save') }}</x-primary-button>
-
-            @if (session('status') === 'profile-updated')
-                <p
-                    x-data="{ show: true }"
-                    x-show="show"
-                    x-transition
-                    x-init="setTimeout(() => show = false, 2000)"
-                    class="text-sm text-gray-600"
-                >{{ __('Saved.') }}</p>
-            @endif
         </div>
     </form>
 </section>
