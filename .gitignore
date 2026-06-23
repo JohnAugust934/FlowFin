@@ -1,0 +1,3 @@
+# APM runtime artifacts (planning docs in .apm/ are tracked; runtime is not)
+/.apm/worktrees/
+/.apm/bus/
