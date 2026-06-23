@@ -6,22 +6,25 @@ title: FlowFin
 
 ## Task Tracking
 
-**Stage 1:**
+**Stage 1:** Complete
+
+**Stage 2:**
 
 | Task | Status | Agent | Branch |
 |------|--------|-------|--------|
-| 1.1 | Done | devops-docs-agent | |
-| 1.2 | Done (validado) | frontend-agent | |
-| 1.3 | Done | backend-agent | |
-| 1.4 | Active | backend-agent | feature/auth-seguranca |
+| 2.1 | Active | backend-agent | feature/api-transacoes |
+| 2.2 | Waiting: 2.1 | backend-agent | |
+| 2.3 | Waiting: 2.1 | frontend-agent | |
+| 2.4 | Waiting: 2.2 | frontend-agent | |
+| 2.5 | Waiting: 2.1 | frontend-agent | |
 
 ## Worker Tracking
 
 | Agent | Instance | Notes |
 |-------|----------|-------|
-| devops-docs-agent | 1 | Initialized; completed Task 1.1 |
-| backend-agent | 1 | Initialized; completed Task 1.3; dispatched Task 1.4 |
-| frontend-agent | 1 | Initialized; completed Task 1.2 (visual validation pending User) |
+| devops-docs-agent | 1 | Initialized; completed Task 1.1 (next work in Stage 6) |
+| backend-agent | 1 | Initialized; completed 1.3, 1.4; dispatched 2.1 |
+| frontend-agent | 1 | Initialized; completed 1.2 (validated by User) |
 
 ## Version Control
 
@@ -31,16 +34,11 @@ title: FlowFin
 
 ## Working Notes
 
-- GitHub remote (`https://github.com/JohnAugust934/FlowFin`) not connected yet; deferred to Task 6.2 deploy, requires guided non-technical User action. No pushes by default.
-- `.apm/` planning docs are tracked in git per User choice; `.apm/worktrees/` and `.apm/bus/` are gitignored.
+- (Durable engineering/env notes distilled to Memory Notes in the Index after Stage 1.)
 - Deadline 02/07/2026 (~9 days). Contingency: if time runs short, declare Stage 2 (MVP) the main deliverable and document the rest in the roadmap (Task 6.3). User priority: finish quality over quantity.
-- Holistic end-to-end verification planned at end of Stage 2 (MVP usable flow) and Stage 5 (offline sync).
-- User is non-technical: SMTP credentials (1.4), GitHub/domain/SSL/cron (Stage 6), and guided visual validations need step-by-step lay-language instructions and explicit pause points.
-- Local env (Task 1.1 finding): MySQL local now working (service active, db `flowfin`, creds root/root); `pdo_mysql` enabled in PHP. PHP 8.5, Composer 2.10, Node 24.17. `SESSION_DRIVER=database` → page render needs DB. Laravel 13 has consolidated migrations (users/cache/jobs by default). Prod prerequisite to record for Task 6.1: PHP `pdo_mysql` must be enabled on the host.
-- Worktree bootstrap pattern: worktrees lack `vendor/`, `node_modules/`, `.env` (gitignored). Parallel Workers must copy `.env` from project root and run `composer install`/`npm install` in the worktree. `migrate:fresh` hits the shared local `flowfin` DB — fine pre-data.
-- Task 1.2 visual validation confirmed by User (mobile/desktop on `/design-system`) — fully Done.
-- Backend 1.3 findings to carry forward: (a) User model uses PHP attribute style `#[Fillable]`/`#[Hidden]` — extend that, don't add `$fillable` props; (b) entity Factories don't exist yet (only UserFactory) — must be created for Task 2.1 feature tests; (c) `migrate:fresh` resets shared `flowfin` DB.
-- Frontend 1.2 findings to carry forward: Tailwind v3 (tokens in `tailwind.config.js`); screens must use `x-app-layout`/`x-guest-layout` for toasts/flash (`@stack('scripts')`); toast dispatch via `$dispatch('toast',{type,message})`; Breeze shared components retemized to brand.
-- Env quirk: `composer` not in Git Bash PATH — run via PowerShell (`C:\tools\composer\composer.bat`); npm works in bash.
-- SMTP: real Hostinger SMTP not available yet (no hosting account confirmed). Task 1.4 validates email flows with `log` mailer; real SMTP deferred to when hosting exists (Stage 6). Pause point recorded.
+- Holistic end-to-end verification planned at end of Stage 2 (MVP usable flow: registrar → dashboard/gráfico/histórico) and Stage 5 (offline sync).
+- GitHub remote (`https://github.com/JohnAugust934/FlowFin`) not connected; deferred to Task 6.2, guided User action. No pushes by default. `.apm/` planning docs tracked; `.apm/worktrees/` and `.apm/bus/` gitignored.
+- Cleanup pending: `.apm/worktrees/auth-seguranca` dir is OS-locked ("Device or resource busy") — git worktree already pruned; delete the leftover folder once the locking process exits.
+- Stage 2 dispatch: 2.1 (API transações/categorias) sequential in main working dir (vendor/node_modules/.env present — no worktree bootstrap). 2.1 unblocks Frontend 2.3+2.5 (parallel) and Backend 2.2; dispatched alone (not batched with 2.2) to unblock Frontend sooner. 2.1 must create entity Factories (needed for its own feature tests + downstream).
+- 2.1 produces the JSON API contract consumed by Frontend (2.3, 2.5) and the offline layer (5.2) — keep payload stable and documented.
 
