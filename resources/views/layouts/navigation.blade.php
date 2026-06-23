@@ -15,8 +15,11 @@
                     <x-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
                         Início
                     </x-nav-link>
-                    <x-nav-link href="#" :active="false">
+                    <x-nav-link :href="route('transactions.history')" :active="request()->routeIs('transactions.history')">
                         Transações
+                    </x-nav-link>
+                    <x-nav-link :href="route('categories.manage')" :active="request()->routeIs('categories.manage')">
+                        Categorias
                     </x-nav-link>
                     <x-nav-link href="#" :active="false">
                         Metas
@@ -27,6 +30,12 @@
             <!-- Menu do usuário -->
             <div class="hidden sm:flex sm:items-center sm:ms-6">
                 @auth
+                    <button type="button"
+                        onclick="window.dispatchEvent(new CustomEvent('open-quick-add'))"
+                        class="btn-primary me-4">
+                        + Nova transação
+                    </button>
+
                     <x-dropdown align="right" width="48">
                         <x-slot name="trigger">
                             <button class="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-neutral-500 bg-white hover:text-neutral-700 focus:outline-none transition ease-in-out duration-150">
