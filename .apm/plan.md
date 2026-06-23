@@ -1,6 +1,6 @@
 ---
 title: FlowFin
-modified: Plan creation by the Planner.
+modified: Added Task 2.6 (server-side filters on transactions API) from task-02-05.log.md finding. Modified by the Manager.
 ---
 
 # APM Plan
@@ -18,7 +18,7 @@ modified: Plan creation by the Planner.
 | Stage | Name | Tasks | Agents |
 |---|---|---|---|
 | 1 | Fundação & Identidade | 4 | DevOps & Docs, Frontend, Backend |
-| 2 | Núcleo Financeiro (MVP) | 5 | Backend, Frontend |
+| 2 | Núcleo Financeiro (MVP) | 6 | Backend, Frontend |
 | 3 | Consciência & Economia | 4 | Backend, Frontend |
 | 4 | Mentalidade & Direcionamento | 4 | Backend, Frontend |
 | 5 | PWA, Offline & Conformidade | 5 | Frontend, Backend |
@@ -45,7 +45,9 @@ subgraph S2["Stage 2: Núcleo Financeiro (MVP)"]
   T2_3["2.3 UI Registro ≤3 toques<br/><i>Frontend Agent</i>"]
   T2_4["2.4 Dashboard + Gráfico<br/><i>Frontend Agent</i>"]
   T2_5["2.5 Histórico com Filtros<br/><i>Frontend Agent</i>"]
+  T2_6["2.6 Filtros server-side na API<br/><i>Backend Agent</i>"]
   T2_1 --> T2_2
+  T2_1 --> T2_6
 end
 
 subgraph S3["Stage 3: Consciência & Economia"]
@@ -117,6 +119,7 @@ style T1_3 fill:#2d6a4f,color:#000
 style T1_4 fill:#2d6a4f,color:#000
 style T2_1 fill:#2d6a4f,color:#000
 style T2_2 fill:#2d6a4f,color:#000
+style T2_6 fill:#2d6a4f,color:#000
 style T3_1 fill:#2d6a4f,color:#000
 style T3_2 fill:#2d6a4f,color:#000
 style T4_1 fill:#2d6a4f,color:#000
@@ -275,6 +278,18 @@ style T5_4 fill:#a8dadc,color:#000
 2. Implementar filtros por período, categoria e tipo.
 3. Implementar edição e exclusão (soft) com feedback.
 4. Validar filtros, paginação e consistência com o dashboard.
+
+### Task 2.6: Filtros server-side na API de Transações - Backend Agent
+
+* **Objective:** Habilitar filtragem no servidor na listagem de transações, fechando a lacuna identificada na Task 2.5 (a UI de histórico já envia os parâmetros, mas o `index` não os lê).
+* **Output:** `GET /api/transactions` aceita e aplica `date_from`, `date_to` (período por data), `category_id` e `type` (entrada/saída), mantendo a paginação de 20/página, o eager loading da categoria e o escopo por usuário; combinações de filtros funcionam; `meta` reflete o total filtrado.
+* **Validation:** Feature tests cobrindo cada filtro isolado e combinado, paginação preservada sobre o conjunto filtrado, e escopo por usuário; parâmetros inválidos tratados (validação).
+* **Guidance:** Esta Task surgiu do achado da Task 2.5 (`task-02-05.log.md`): o `TransactionController@index` apenas paginava (`latest('date')->paginate(20)`) sem ler query params. A UI de histórico já envia exatamente `date_from`, `date_to`, `category_id`, `type` — manter esse contrato para encaixe imediato. Reusar os padrões da Task 2.1 (escopo por usuário, `Accept: application/json`, eager loading). Validar os parâmetros (datas, enum de tipo, existência/escopo da categoria).
+* **Dependencies:** Task 2.1.
+
+1. Adicionar leitura e validação dos query params no `index` (FormRequest ou validação inline).
+2. Aplicar os filtros à query escopada por usuário, preservando `with('category')` e `paginate(20)`.
+3. Escrever feature tests dos filtros (isolados, combinados, paginação, escopo).
 
 ## Stage 3: Consciência & Economia
 

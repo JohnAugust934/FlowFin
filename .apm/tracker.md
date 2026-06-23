@@ -14,17 +14,18 @@ title: FlowFin
 |------|--------|-------|--------|
 | 2.1 | Done | backend-agent | |
 | 2.2 | Done | backend-agent | |
-| 2.3 | Active | frontend-agent | feature/ui-registro-historico |
-| 2.4 | Ready | frontend-agent | |
-| 2.5 | Active | frontend-agent | feature/ui-registro-historico |
+| 2.3 | Done | frontend-agent | |
+| 2.4 | Active | frontend-agent | feature/dashboard-ui |
+| 2.5 | Done | frontend-agent | |
+| 2.6 | Active | backend-agent | feature/filtros-transacoes |
 
 ## Worker Tracking
 
 | Agent | Instance | Notes |
 |-------|----------|-------|
 | devops-docs-agent | 1 | Initialized; completed Task 1.1 (next work in Stage 6) |
-| backend-agent | 1 | Completed 1.3, 1.4, 2.1, 2.2; idle (Stage 2 backend done) |
-| frontend-agent | 1 | Completed 1.2; dispatched batch 2.3+2.5 |
+| backend-agent | 1 | Completed 1.3, 1.4, 2.1, 2.2; dispatched 2.6 |
+| frontend-agent | 1 | Completed 1.2, 2.3, 2.5; dispatched 2.4 |
 
 ## Version Control
 
@@ -41,6 +42,9 @@ title: FlowFin
 - Cleanup pending: `.apm/worktrees/auth-seguranca` dir is OS-locked ("Device or resource busy") — git worktree already pruned; delete the leftover folder once the locking process exits.
 - 2.1 done/merged. API contract (consumed by 2.3/2.5 and offline 5.2): `amount` in integer centavos in/out; writes need `Accept: application/json` + CSRF; categories list NOT paginated (justified — small set). Factories for Transaction/Category created.
 - 2.2 done/merged. Dashboard endpoint for 2.4: `GET /api/dashboard?month=aaaa-mm` → `{month, totals{entrou,saiu,sobrou}, by_category[], needs_vs_wants{necessidade,desejo,sem_classificacao,*_pct}}`, all centavos. Cache invalidation via `TransactionObserver` (`#[ObservedBy]` on Transaction model — preserve it).
-- Wait state: Frontend busy with batch 2.3+2.5 (worktree ui-registro-historico). 2.4 Ready, dispatch to Frontend once the batch report returns. Backend idle. Next action: User returns Frontend batch report (`/apm-5-check-reports`).
+- 2.3+2.5 done/merged. Frontend established: central write point `api.persistTransaction` (offline interception target for 5.2); JS utils in `resources/js/flowfin/` (api, format R$↔centavos, icons Heroicons, components Alpine); global transaction form (bottom-sheet/modal) opened via `open-quick-add`; events `transaction-saved`/`edit-transaction`; histórico at `/transacoes`, categorias at `/categorias`. App shell layouts modified to wire screens.
+- Task 2.6 added to Plan (Manager authority) from 2.5 finding: API `index` ignored filter params. 2.6 adds server-side `date_from/date_to/category_id/type` to `GET /api/transactions` (UI already sends them).
+- Active parallel dispatch: Frontend 2.4 (worktree dashboard-ui) ∥ Backend 2.6 (worktree filtros-transacoes). After both merge, Stage 2 complete → holistic end-to-end MVP verification (registrar → dashboard/gráfico/histórico, incl. filters working server-side) before Stage 3.
+- Dashboard endpoint contract for 2.4 carried in Plan/2.2 log; histórico filter validation (end-to-end) to be confirmed after 2.6 lands.
 - GIT LESSON (do not repeat): never delete/recreate a feature branch a Worker is using — a Worker commit (2.1, `5ddba2f`) was nearly lost by branch -D + recreate; recovered via the commit object. Manager edits planning docs on `develop` only; feature branches must not modify tracker/index (avoids merge conflicts via 3-way merge).
 
