@@ -20,14 +20,21 @@ title: FlowFin
 | 2.6 | Done | backend-agent | |
 | 2.7 | Done | frontend-agent | |
 
-**Stage 3:**
+**Stage 3:** Complete
 
 | Task | Status | Agent | Branch |
 |------|--------|-------|--------|
 | 3.1 | Done | backend-agent | |
 | 3.2 | Done | backend-agent | |
-| 3.3 | Active | frontend-agent | feature/ui-consciencia-economia |
-| 3.4 | Active | frontend-agent | feature/ui-consciencia-economia |
+| 3.3 | Done | frontend-agent | |
+| 3.4 | Done | frontend-agent | |
+
+**Stage 4:**
+
+| Task | Status | Agent | Branch |
+|------|--------|-------|--------|
+| 4.1 | Active | backend-agent | feature/score-metas-investimentos |
+| 4.2 | Active | backend-agent | feature/score-metas-investimentos |
 
 ## Worker Tracking
 
@@ -35,7 +42,7 @@ title: FlowFin
 |-------|----------|-------|
 | devops-docs-agent | 1 | Initialized; completed Task 1.1 (next work in Stage 6) |
 | backend-agent | 1 | Completed 1.3, 1.4, 2.1, 2.2, 2.6, 3.1, 3.2 |
-| frontend-agent | 1 | Completed 1.2, 2.3, 2.4, 2.5, 2.7 |
+| frontend-agent | 1 | Completed 1.2, 2.3, 2.4, 2.5, 2.7, 3.3, 3.4 |
 
 ## Version Control
 
@@ -63,8 +70,9 @@ title: FlowFin
 - 3.1 DONE/mesclada (commit 93f2b18). Serviços+endpoints: recorrentes/projeção, insights (top 3 transações de saída, linha do tempo diária, comparativo mês a mês), invisíveis, orçamentos (status ok/alerta/estourado 80/100), meta de economia. NOVA coluna `users.monthly_savings_goal` (centavos, nullable) — Score do Stage 4 (peso 30%) depende dela + `PUT /api/savings-goal`. Observers de Recurrence/Budget + TransactionObserver estendido. Contratos JSON documentados no task-03-01.log.md (todos centavos, month=aaaa-mm) p/ UIs 3.3/3.4. Verificação: migrate + 100/100 testes ✓.
 - A confirmar na UI 3.3: "Top 3 maiores gastos" foi implementado como as 3 TRANSAÇÕES de saída de maior valor (não top 3 categorias) — ajuste pequeno se o produto quiser categorias.
 - 3.2 DONE/mesclada (commit ccb9b10). `SavingsReportService` + `GET /api/savings-report?month=aaaa-mm` → `{month, total_potential_savings, count, suggestions[{type(categoria_desejo|recorrente), reference_id, label, current_amount, cut_pct, estimated_savings, category|null, message}]}` (centavos). Cortes determinísticos: desejo 30%, recorrente 20% (decisão do Worker; Spec só exemplifica 30% — ajuste de constante se quiser variar). Possível sobreposição categoria×recorrente mantida sem dedupe (transparente). Verificação: build + 107/107 testes ✓. Branch apagada.
-- 3.3+3.4 despachadas em LOTE ao Frontend (uma branch `feature/ui-consciencia-economia`, sequencial no mesmo chat) — ambos os contratos backend prontos (3.1 + 3.2). 3.3 = UI Consciência (insights/recorrentes/invisíveis/orçamentos); 3.4 = UI Economia (relatório onde economizar + meta + orçamentos/invisíveis). Validação visual guiada ao final.
-- 3.2 despachada (Backend, sequencial, feature/relatorio-onde-economizar): Relatório "Onde Economizar" (sugestões determinísticas sobre maiores Desejos + recorrentes). Depende de 3.1. Após 3.2: despachar UIs 3.3 (Consciência) + 3.4 (Economia) ao Frontend como batch (ambos contratos prontos).
+- 3.3+3.4 DONE/mescladas (commit 9549c76, merge --no-ff). Telas `/consciencia` (top 3 transações, linha do tempo diária em barras CSS, comparativo mês a mês com setas semafóricas) e `/economia` (meta com barra+CRUD, orçamentos semafóricos 80/100 com CRUD, invisíveis, onde economizar). SEM reintroduzir Chart.js (barras CSS, consistente com dashboard). Usuário APROVOU as 3 decisões: Top 3 = transações; invisíveis na tela Economia; navegação reorganizada (bottom-nav mobile = Início·Transações·[+]·Consciência·Economia; Categorias virou ícone no cabeçalho; Perfil no avatar; desktop = …·Consciência·Economia·Categorias). Verificação: build + 107/107 ✓.
+- Stage 3 COMPLETO. Lacuna conhecida p/ depois: NÃO há tela de cadastro de recorrências ligada na navegação (endpoints CRUD existem da 3.1) — painel de "invisíveis" depende de transações marcadas `is_recurring`. Avaliar uma UI de recorrências (candidata a Stage futuro/roadmap 6.3 se o tempo apertar).
+- 4.1+4.2 despachadas em LOTE ao Backend (branch `feature/score-metas-investimentos`, sequencial no mesmo chat — candidatos a batch por Plan notes; 4.1 no caminho crítico). 4.1 = Score(40/30/30)+streak+job reset no scheduler+dicas+conteúdo educativo (usa `users.monthly_savings_goal` da 3.1); 4.2 = metas com propósito+simulador+prioridades+investimentos. Depois: UIs 4.3 (dep 4.1) + 4.4 (dep 4.2) em lote ao Frontend.
 - Utilitário: `php artisan db:seed --class=TestDataSeeder` recria usuário de teste (teste@flowfin.com.br/senha1234, e-mail verificado) + dados (idempotente). Commitado em develop.
 - GIT LESSON (do not repeat): never delete/recreate a feature branch a Worker is using — a Worker commit (2.1, `5ddba2f`) was nearly lost by branch -D + recreate; recovered via the commit object. Manager edits planning docs on `develop` only; feature branches must not modify tracker/index (avoids merge conflicts via 3-way merge).
 

@@ -47,3 +47,15 @@ Coordenação: 2.1→2.2 (caminho crítico Backend) em sequência; UIs 2.3/2.5 e
 - task-02-06.log.md
 - task-02-07.log.md
 
+### Stage 3 - Consciência & Economia
+
+Os pilares de Consciência e Economia foram entregues e validados visualmente pelo usuário. **Backend (3.1, 3.2):** a Task 3.1 entregou toda a camada de serviços + endpoints JSON (todos centavos, `month=aaaa-mm`): recorrências/contas fixas (CRUD + projeção mensal), insights (`GET /api/insights`: top 3 transações de saída, linha do tempo diária, comparativo mês a mês com variação %), detector de gastos invisíveis (`GET /api/insights/invisible`, impacto mensal normalizado por frequência), orçamentos por categoria com status semafórico (`GET /api/budgets/status`: ok <80% / alerta 80–99% / estourado ≥100%) e meta de economia mensal (`GET|PUT /api/savings-goal`) — adicionou a coluna `users.monthly_savings_goal` (centavos, nullable), da qual o Score do Stage 4 depende. Cache em arquivo por usuário/mês com invalidação via observers (`TransactionObserver` estendido + `RecurrenceObserver`/`BudgetObserver`). A Task 3.2 entregou o relatório "Onde Economizar" (`GET /api/savings-report`): sugestões determinísticas priorizadas por economia potencial — corte de 30% nas maiores categorias de "Desejo" e 20% nos gastos recorrentes (percentuais = decisão do Worker; a Spec só exemplifica 30%), cada uma com `message` pronta em PT-BR. **Frontend (3.3, 3.4):** telas `/consciencia` (top 3 gastos, linha do tempo em barras CSS, comparativo com setas semafóricas — em "Saiu", cair é bom) e `/economia` (meta com barra de progresso + CRUD, orçamentos semafóricos + CRUD, painel de invisíveis, relatório onde economizar), no mesmo idioma visual glassmorphism/tema do dashboard, **sem reintroduzir Chart.js** (barras CSS, mantendo o bundle enxuto).
+
+Decisões de produto aprovadas pelo usuário: (1) "Top 3 maiores gastos" = as 3 *transações* de maior valor (não top 3 categorias); (2) painel de "gastos invisíveis" mora na tela Economia (par temático com "onde economizar"); (3) **navegação reorganizada** — bottom-nav mobile = Início · Transações · [+] · Consciência · Economia; "Categorias" virou ícone no cabeçalho mobile e "Perfil" fica no avatar; desktop = Início · Transações · Consciência · Economia · Categorias. Coordenação: Backend sequencial 3.1→3.2 (caminho crítico, 3.2 curta); UIs 3.3+3.4 despachadas em lote ao Frontend (um chat/branch) só após ambos os contratos prontos. Verificação a cada merge na pasta principal: `npm run build` ✓ + suíte completa (107/107 testes, 355 asserções) ✓. **Lacuna conhecida:** não há tela de cadastro de recorrências ligada à navegação (endpoints CRUD existem) — o painel de invisíveis depende de transações marcadas `is_recurring`; candidata a UI futura/roadmap.
+
+**Task Logs:**
+- task-03-01.log.md
+- task-03-02.log.md
+- task-03-03.log.md
+- task-03-04.log.md
+
