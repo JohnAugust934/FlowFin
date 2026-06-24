@@ -15,17 +15,17 @@ title: FlowFin
 | 2.1 | Done | backend-agent | |
 | 2.2 | Done | backend-agent | |
 | 2.3 | Done | frontend-agent | |
-| 2.4 | Active | frontend-agent | feature/dashboard-ui |
+| 2.4 | Done | frontend-agent | |
 | 2.5 | Done | frontend-agent | |
-| 2.6 | Active | backend-agent | feature/filtros-transacoes |
+| 2.6 | Done | backend-agent | |
 
 ## Worker Tracking
 
 | Agent | Instance | Notes |
 |-------|----------|-------|
 | devops-docs-agent | 1 | Initialized; completed Task 1.1 (next work in Stage 6) |
-| backend-agent | 1 | Completed 1.3, 1.4, 2.1, 2.2; dispatched 2.6 |
-| frontend-agent | 1 | Completed 1.2, 2.3, 2.5; dispatched 2.4 |
+| backend-agent | 1 | Completed 1.3, 1.4, 2.1, 2.2, 2.6 |
+| frontend-agent | 1 | Completed 1.2, 2.3, 2.4, 2.5 |
 
 ## Version Control
 
@@ -44,7 +44,7 @@ title: FlowFin
 - 2.2 done/merged. Dashboard endpoint for 2.4: `GET /api/dashboard?month=aaaa-mm` → `{month, totals{entrou,saiu,sobrou}, by_category[], needs_vs_wants{necessidade,desejo,sem_classificacao,*_pct}}`, all centavos. Cache invalidation via `TransactionObserver` (`#[ObservedBy]` on Transaction model — preserve it).
 - 2.3+2.5 done/merged. Frontend established: central write point `api.persistTransaction` (offline interception target for 5.2); JS utils in `resources/js/flowfin/` (api, format R$↔centavos, icons Heroicons, components Alpine); global transaction form (bottom-sheet/modal) opened via `open-quick-add`; events `transaction-saved`/`edit-transaction`; histórico at `/transacoes`, categorias at `/categorias`. App shell layouts modified to wire screens.
 - Task 2.6 added to Plan (Manager authority) from 2.5 finding: API `index` ignored filter params. 2.6 adds server-side `date_from/date_to/category_id/type` to `GET /api/transactions` (UI already sends them).
-- Active parallel dispatch: Frontend 2.4 (worktree dashboard-ui) ∥ Backend 2.6 (worktree filtros-transacoes). After both merge, Stage 2 complete → holistic end-to-end MVP verification (registrar → dashboard/gráfico/histórico, incl. filters working server-side) before Stage 3.
-- Dashboard endpoint contract for 2.4 carried in Plan/2.2 log; histórico filter validation (end-to-end) to be confirmed after 2.6 lands.
+- 2.4 e 2.6 mescladas em develop (Manager 2). Verificação integrada na pasta principal: npm install + npm run build ✓; suíte completa 69/69 ✓ (222 asserções) — as 7 falhas de Vite manifest eram só do worktree sem build. Commits de merge: 2.6 e 2.4 (--no-ff). Worktrees removidos, branches apagadas.
+- PENDENTE antes de declarar Stage 2 completo: validação visual guiada do usuário cobrindo o fluxo MVP (registrar ≤3 toques → dashboard/gráfico/% necessidade-desejo → histórico com filtros server-side). Junta as validações ainda não confirmadas de 2.3, 2.4 e 2.5. Após confirmação: collapse do Stage 2 + Stage summary + despacho 3.1.
 - GIT LESSON (do not repeat): never delete/recreate a feature branch a Worker is using — a Worker commit (2.1, `5ddba2f`) was nearly lost by branch -D + recreate; recovered via the commit object. Manager edits planning docs on `develop` only; feature branches must not modify tracker/index (avoids merge conflicts via 3-way merge).
 
