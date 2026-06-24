@@ -6,6 +6,7 @@ use App\Models\Transaction;
 use App\Services\BudgetService;
 use App\Services\DashboardService;
 use App\Services\InsightsService;
+use App\Services\SavingsReportService;
 use Carbon\CarbonImmutable;
 use Carbon\CarbonInterface;
 use Illuminate\Support\Carbon;
@@ -28,6 +29,7 @@ class TransactionObserver
         private DashboardService $dashboard,
         private InsightsService $insights,
         private BudgetService $budgets,
+        private SavingsReportService $savingsReport,
     ) {}
 
     public function created(Transaction $transaction): void
@@ -73,6 +75,7 @@ class TransactionObserver
         $this->dashboard->forget($userId, $month);
         $this->insights->forget($userId, $month);
         $this->budgets->forget($userId, $month);
+        $this->savingsReport->forget($userId, $month);
 
         // O comparativo do mês seguinte depende deste mês.
         $nextMonth = CarbonImmutable::createFromFormat('Y-m', $month)->addMonth()->format('Y-m');
