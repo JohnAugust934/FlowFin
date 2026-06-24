@@ -9,6 +9,12 @@ function toast(type, message) {
     window.dispatchEvent(new CustomEvent('toast', { detail: { type, message } }));
 }
 
+/** Mês atual no formato "aaaa-mm" (fuso local). */
+function currentMonth() {
+    const now = new Date();
+    return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+}
+
 // Cache simples de categorias por sessão de página (evita refetch desnecessário).
 let categoriesCache = null;
 async function loadCategories(force = false) {
@@ -376,6 +382,132 @@ document.addEventListener('alpine:init', () => {
         },
         categoryName(tx) {
             return tx.category?.name || 'Sem categoria';
+        },
+    }));
+
+    // ------------------------------------------------------------------
+    // Dashboard do mês: cards entrou/saiu/sobrou, gráfico de rosca por
+    // categoria e % necessidade vs. desejo. Consome /api/dashboard (valores
+    // em centavos) e recarrega ao ouvir `transaction-saved`.
+    // ------------------------------------------------------------------
+    Alpine.data('dashboard', () => ({
+        loading: true,
+        error: null,
+        month: null,        // "aaaa-mm" de referência
+        data: null,         // payload do endpoint
+        chart: null,        // instância Chart.js (rosca)
+
+        // Paleta de fallback p/ categorias sem cor definida (tons da marca/semáforo).
+        palette: ['#2563EB', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6', '#06B6D4', '#EC4899', '#84CC16', '#6B7280'],
+
+        async init() {
+            this.month = currentMonth();
+            await this.load();
+            // Recarrega quando uma transação é criada/editada em qualquer lugar do app.
+            window.addEventListener('transaction-saved', () => this.load());
+        },
+
+        async load() {
+            this.loading = true;
+            this.error = null;
+            try {
+                this.data = await api.getDashboard(this.month);
+                this.month = this.data.month; // normalizado pelo servidor
+                this.$nextTick(() => this.renderChart());
+            } catch (e) {
+                this.error = e.message;
+                toast('error', e.message);
+            } finally {
+                this.loading = false;
+            }
+        },
+
+        // --- Navegação de mês ---
+        shiftMonth(delta) {
+            const [y, m] = this.month.split('-').map(Number);
+            const d = new Date(y, m - 1 + delta, 1);
+            this.month = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
+            this.load();
+        },
+        prevMonth() {
+            this.shiftMonth(-1);
+        },
+        nextMonth() {
+            if (this.canGoNext) this.shiftMonth(1);
+        },
+        get canGoNext() {
+            return this.month < currentMonth();
+        },
+        get monthLabel() {
+            const [y, m] = this.month.split('-').map(Number);
+            const label = new Date(y, m - 1, 1).toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' });
+            return label.charAt(0).toUpperCase() + label.slice(1);
+        },
+
+        // --- Resumo ---
+        get totals() {
+            return this.data?.totals ?? { entrou: 0, saiu: 0, sobrou: 0 };
+        },
+        get byCategory() {
+            return this.data?.by_category ?? [];
+        },
+        get needsVsWants() {
+            return this.data?.needs_vs_wants ?? { necessidade: 0, desejo: 0, sem_classificacao: 0, necessidade_pct: 0, desejo_pct: 0 };
+        },
+        get hasCategoryData() {
+            return this.byCategory.length > 0;
+        },
+        get hasClassification() {
+            const n = this.needsVsWants;
+            return (n.necessidade + n.desejo) > 0;
+        },
+
+        money(cents) {
+            return centsToBRL(cents);
+        },
+        colorFor(index, color) {
+            return color || this.palette[index % this.palette.length];
+        },
+
+        // --- Gráfico de rosca ---
+        renderChart() {
+            const canvas = this.$refs.chartCanvas;
+            if (!canvas) return;
+
+            if (this.chart) {
+                this.chart.destroy();
+                this.chart = null;
+            }
+            if (!this.hasCategoryData) return;
+
+            const labels = this.byCategory.map((c) => c.name);
+            const values = this.byCategory.map((c) => c.total); // centavos
+            const colors = this.byCategory.map((c, i) => this.colorFor(i, c.color));
+
+            this.chart = new window.Chart(canvas, {
+                type: 'doughnut',
+                data: {
+                    labels,
+                    datasets: [{ data: values, backgroundColor: colors, borderWidth: 2, borderColor: '#fff' }],
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    cutout: '62%',
+                    animation: { duration: 300 },
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: { color: '#374151', font: { family: 'Inter', size: 12 }, padding: 12, usePointStyle: true, pointStyle: 'circle' },
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: (ctx) => ` ${ctx.label}: ${centsToBRL(ctx.parsed)}`,
+                            },
+                        },
+                    },
+                },
+            });
         },
     }));
 });

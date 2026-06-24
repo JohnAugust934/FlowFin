@@ -69,6 +69,17 @@ async function request(method, url, body = null) {
 }
 
 export const api = {
+    // --- Dashboard ---
+    /**
+     * Agregados do mês (entrou/saiu/sobrou, por categoria, % necessidade/desejo).
+     * Todos os valores monetários vêm em CENTAVOS (inteiro).
+     * @param {string|null} month  "aaaa-mm"; quando omitido, usa o mês atual.
+     */
+    async getDashboard(month = null) {
+        const qs = month ? `?month=${encodeURIComponent(month)}` : '';
+        return await request('GET', '/api/dashboard' + qs);
+    },
+
     // --- Categorias ---
     async getCategories() {
         return (await request('GET', '/api/categories')).data;
