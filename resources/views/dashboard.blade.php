@@ -83,9 +83,9 @@
                     <div x-show="hasCategoryData" class="relative h-72">
                         <canvas x-ref="chartCanvas"></canvas>
                         {{-- Total no centro da rosca --}}
-                        <div class="pointer-events-none absolute inset-x-0 top-[38%] -translate-y-1/2 text-center">
-                            <p class="text-xs text-neutral-400 dark:text-neutral-500">Total de saídas</p>
-                            <p class="text-lg font-bold text-neutral-800 dark:text-neutral-100" x-text="totalSaidasLabel"></p>
+                        <div class="pointer-events-none absolute inset-x-0 top-[42%] -translate-y-1/2 text-center px-4">
+                            <p class="text-[11px] uppercase tracking-wide text-neutral-400 dark:text-neutral-500">Total de saídas</p>
+                            <p class="text-xl font-extrabold tracking-tight text-neutral-800 dark:text-neutral-100" x-text="totalSaidasLabel"></p>
                         </div>
                     </div>
                     {{-- Estado vazio --}}

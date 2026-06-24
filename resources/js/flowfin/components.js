@@ -522,28 +522,55 @@ document.addEventListener('alpine:init', () => {
             const values = this.byCategory.map((c) => c.total); // centavos
             const colors = this.byCategory.map((c, i) => this.colorFor(i, c.color));
 
-            // Cores do gráfico cientes do tema (legenda legível, bordas que separam as fatias).
+            // Cores do gráfico cientes do tema. As fatias usam "spacing" (gap) em vez de
+            // borda, deixando o fundo do cartão aparecer entre elas — acabamento mais limpo.
             const isDark = document.documentElement.classList.contains('dark');
-            const legendColor = isDark ? '#E5E7EB' : '#374151';
-            const sliceBorder = isDark ? 'rgba(17,24,39,0.85)' : '#ffffff';
+            const legendColor = isDark ? '#D1D5DB' : '#4B5563';
 
             this.chart = new window.Chart(canvas, {
                 type: 'doughnut',
                 data: {
                     labels,
-                    datasets: [{ data: values, backgroundColor: colors, borderWidth: 3, borderColor: sliceBorder }],
+                    datasets: [{
+                        data: values,
+                        backgroundColor: colors,
+                        borderWidth: 0,
+                        borderRadius: 8,       // pontas arredondadas das fatias
+                        spacing: 3,            // respiro entre as fatias
+                        hoverOffset: 8,
+                    }],
                 },
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
-                    cutout: '68%',
-                    animation: { duration: 300 },
+                    cutout: '74%',             // anel mais fino e elegante
+                    radius: '92%',
+                    layout: { padding: 4 },
+                    animation: { duration: 350 },
                     plugins: {
                         legend: {
                             position: 'bottom',
-                            labels: { color: legendColor, font: { family: 'Inter', size: 12 }, padding: 12, usePointStyle: true, pointStyle: 'circle' },
+                            labels: {
+                                color: legendColor,
+                                font: { family: 'Inter', size: 12 },
+                                padding: 16,
+                                usePointStyle: true,
+                                pointStyle: 'circle',
+                                boxWidth: 8,
+                                boxHeight: 8,
+                            },
                         },
                         tooltip: {
+                            backgroundColor: isDark ? 'rgba(17,24,39,0.92)' : 'rgba(255,255,255,0.96)',
+                            titleColor: isDark ? '#F3F4F6' : '#111827',
+                            bodyColor: isDark ? '#E5E7EB' : '#374151',
+                            borderColor: isDark ? 'rgba(255,255,255,0.12)' : 'rgba(0,0,0,0.08)',
+                            borderWidth: 1,
+                            padding: 10,
+                            cornerRadius: 10,
+                            usePointStyle: true,
+                            bodyFont: { family: 'Inter' },
+                            titleFont: { family: 'Inter', weight: '600' },
                             callbacks: {
                                 label: (ctx) => ` ${ctx.label}: ${centsToBRL(ctx.parsed)}`,
                             },

@@ -30,7 +30,7 @@
             <header class="sm:hidden sticky top-0 z-30 bg-white/70 dark:bg-neutral-900/70 backdrop-blur-xl border-b border-white/40 dark:border-white/10">
                 <div class="flex items-center justify-between h-14 px-4">
                     <a href="{{ route('dashboard') }}" class="flex items-center">
-                        <x-brand-logo class="h-7 w-auto" />
+                        <x-brand-icon class="h-8 w-8" />
                     </a>
                     <div class="flex items-center gap-2">
                         <x-theme-toggle />
