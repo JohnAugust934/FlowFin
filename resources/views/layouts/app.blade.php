@@ -33,6 +33,15 @@
                         <x-brand-icon class="h-8 w-8" />
                     </a>
                     <div class="flex items-center gap-2">
+                        @auth
+                            <a href="{{ route('categories.manage') }}"
+                               class="flex items-center justify-center w-9 h-9 rounded-full text-neutral-500 dark:text-neutral-300 hover:bg-white/60 dark:hover:bg-white/10 transition {{ request()->routeIs('categories.manage') ? 'text-brand-600 dark:text-brand-300' : '' }}"
+                               aria-label="Categorias">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24" aria-hidden="true">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M3 7a2 2 0 012-2h4l2 2h8a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2V7z" />
+                                </svg>
+                            </a>
+                        @endauth
                         <x-theme-toggle />
                         @auth
                             <a href="{{ route('profile.edit') }}" class="flex items-center justify-center w-9 h-9 rounded-full bg-brand-50 dark:bg-brand-500/20 text-brand-700 dark:text-brand-200 text-sm font-semibold">

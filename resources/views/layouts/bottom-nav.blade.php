@@ -1,9 +1,9 @@
 {{-- Navegação inferior — padrão mobile. Oculta no desktop (sm:hidden). --}}
 @php
     $isDashboard = request()->routeIs('dashboard');
-    $isProfile = request()->routeIs('profile.*');
     $isHistory = request()->routeIs('transactions.history');
-    $isCategories = request()->routeIs('categories.manage');
+    $isConsciencia = request()->routeIs('insights.consciencia');
+    $isEconomia = request()->routeIs('savings.economia');
     $itemBase = 'flex flex-col items-center justify-center gap-0.5 flex-1 py-2 text-xs font-medium transition';
     $active = 'text-brand-600 dark:text-brand-300';
     $idle = 'text-neutral-400 hover:text-neutral-600 dark:text-neutral-500 dark:hover:text-neutral-300';
@@ -39,20 +39,20 @@
             </button>
         </div>
 
-        {{-- Categorias --}}
-        <a href="{{ route('categories.manage') }}" class="{{ $itemBase }} {{ $isCategories ? $active : $idle }}">
+        {{-- Consciência --}}
+        <a href="{{ route('insights.consciencia') }}" class="{{ $itemBase }} {{ $isConsciencia ? $active : $idle }}">
             <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24" aria-hidden="true">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M3 7a2 2 0 012-2h4l2 2h8a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2V7z" />
+                <path stroke-linecap="round" stroke-linejoin="round" d="M3 13.5L9 7.5l4 4 5-6m0 0h-3.5m3.5 0V9M3.75 20.25h16.5" />
             </svg>
-            Categorias
+            Consciência
         </a>
 
-        {{-- Perfil --}}
-        <a href="{{ route('profile.edit') }}" class="{{ $itemBase }} {{ $isProfile ? $active : $idle }}">
+        {{-- Economia --}}
+        <a href="{{ route('savings.economia') }}" class="{{ $itemBase }} {{ $isEconomia ? $active : $idle }}">
             <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24" aria-hidden="true">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M12 12a4 4 0 100-8 4 4 0 000 8zm0 2c-4 0-7 2-7 5v1h14v-1c0-3-3-5-7-5z" />
+                <path stroke-linecap="round" stroke-linejoin="round" d="M21 12a2.25 2.25 0 00-2.25-2.25H15a3 3 0 11-6 0H5.25A2.25 2.25 0 003 12m18 0v6a2.25 2.25 0 01-2.25 2.25H5.25A2.25 2.25 0 013 18v-6m18 0V9a2.25 2.25 0 00-2.25-2.25H5.25A2.25 2.25 0 003 9v3" />
             </svg>
-            Perfil
+            Economia
         </a>
     </div>
 </nav>
