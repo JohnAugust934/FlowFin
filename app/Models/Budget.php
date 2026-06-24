@@ -2,12 +2,15 @@
 
 namespace App\Models;
 
+use App\Observers\BudgetObserver;
 use Database\Factories\BudgetFactory;
+use Illuminate\Database\Eloquent\Attributes\ObservedBy;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
+#[ObservedBy([BudgetObserver::class])]
 class Budget extends Model
 {
     /** @use HasFactory<BudgetFactory> */
