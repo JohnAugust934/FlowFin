@@ -34,33 +34,33 @@
         class="fixed z-50 inset-x-0 bottom-0 sm:inset-0 sm:flex sm:items-center sm:justify-center sm:p-4"
         role="dialog" aria-modal="true"
     >
-        <div class="bg-white w-full sm:max-w-lg rounded-t-3xl sm:rounded-2xl shadow-xl max-h-[92vh] overflow-y-auto">
+        <div class="bg-white dark:bg-neutral-900 w-full sm:max-w-lg rounded-t-3xl sm:rounded-2xl shadow-xl border-t border-white/40 dark:border-white/10 max-h-[92vh] overflow-y-auto">
             {{-- Cabeçalho --}}
-            <div class="sticky top-0 bg-white px-5 pt-4 pb-3 border-b border-neutral-100 flex items-center justify-between">
-                <h2 class="text-lg font-semibold text-neutral-800" x-text="editingId ? 'Editar transação' : 'Nova transação'"></h2>
-                <button type="button" @click="close()" class="text-neutral-400 hover:text-neutral-600 text-2xl leading-none" aria-label="Fechar">&times;</button>
+            <div class="sticky top-0 bg-white dark:bg-neutral-900 px-5 pt-4 pb-3 border-b border-neutral-100 dark:border-neutral-800 flex items-center justify-between">
+                <h2 class="text-lg font-semibold text-neutral-800 dark:text-neutral-100" x-text="editingId ? 'Editar transação' : 'Nova transação'"></h2>
+                <button type="button" @click="close()" class="text-neutral-400 hover:text-neutral-600 dark:hover:text-neutral-200 text-2xl leading-none" aria-label="Fechar">&times;</button>
             </div>
 
             <form @submit.prevent="save()" class="px-5 py-4 space-y-5">
                 {{-- Tipo: saída / entrada --}}
-                <div class="grid grid-cols-2 gap-2 p-1 bg-neutral-100 rounded-xl">
+                <div class="grid grid-cols-2 gap-2 p-1 bg-neutral-100 dark:bg-neutral-800 rounded-xl">
                     <button type="button" @click="setType('saida')"
                         class="py-2 rounded-lg text-sm font-semibold transition"
-                        :class="form.type === 'saida' ? 'bg-white text-danger shadow-sm' : 'text-neutral-500'">
+                        :class="form.type === 'saida' ? 'bg-white dark:bg-neutral-700 text-danger shadow-sm' : 'text-neutral-500 dark:text-neutral-400'">
                         Saída
                     </button>
                     <button type="button" @click="setType('entrada')"
                         class="py-2 rounded-lg text-sm font-semibold transition"
-                        :class="form.type === 'entrada' ? 'bg-white text-emerald-600 shadow-sm' : 'text-neutral-500'">
+                        :class="form.type === 'entrada' ? 'bg-white dark:bg-neutral-700 text-emerald-600 dark:text-emerald-400 shadow-sm' : 'text-neutral-500 dark:text-neutral-400'">
                         Entrada
                     </button>
                 </div>
 
                 {{-- Valor --}}
                 <div>
-                    <label class="block font-medium text-sm text-neutral-700 mb-1">Valor</label>
+                    <label class="block font-medium text-sm text-neutral-700 dark:text-neutral-300 mb-1">Valor</label>
                     <div class="relative">
-                        <span class="absolute inset-y-0 left-0 flex items-center pl-4 text-neutral-500 font-semibold">R$</span>
+                        <span class="absolute inset-y-0 left-0 flex items-center pl-4 text-neutral-500 dark:text-neutral-400 font-semibold z-10">R$</span>
                         <input
                             x-ref="amount"
                             type="text"
@@ -68,7 +68,7 @@
                             :value="form.amount"
                             @input="onAmountInput($event)"
                             placeholder="0,00"
-                            class="block w-full pl-11 pr-4 py-3 text-2xl font-bold text-neutral-900 border-neutral-300 rounded-xl focus:border-brand-500 focus:ring-brand-500"
+                            class="block w-full pl-11 pr-4 py-3 text-2xl font-bold text-neutral-900 dark:text-neutral-100 border-neutral-300 rounded-xl focus:border-brand-500 focus:ring-brand-500"
                             :class="{ 'border-danger focus:border-danger focus:ring-danger': fieldError('amount') }"
                         >
                     </div>
@@ -77,19 +77,19 @@
 
                 {{-- Categoria --}}
                 <div>
-                    <label class="block font-medium text-sm text-neutral-700 mb-2">Categoria</label>
+                    <label class="block font-medium text-sm text-neutral-700 dark:text-neutral-300 mb-2">Categoria</label>
 
-                    <div x-show="loadingCategories" class="text-sm text-neutral-400 py-2">Carregando categorias…</div>
+                    <div x-show="loadingCategories" class="text-sm text-neutral-400 dark:text-neutral-500 py-2">Carregando categorias…</div>
 
                     <div x-show="!loadingCategories" class="grid grid-cols-3 sm:grid-cols-4 gap-2">
                         <template x-for="cat in categories" :key="cat.id">
                             <button type="button" @click="selectCategory(cat.id)"
                                 class="flex flex-col items-center gap-1 p-2 rounded-xl border text-center transition"
-                                :class="form.category_id === cat.id ? 'border-brand-500 bg-brand-50' : 'border-neutral-200 hover:border-neutral-300'">
+                                :class="form.category_id === cat.id ? 'border-brand-500 bg-brand-50 dark:bg-brand-500/20' : 'border-neutral-200 dark:border-neutral-700 hover:border-neutral-300 dark:hover:border-neutral-600'">
                                 <span class="flex items-center justify-center w-9 h-9 rounded-full"
                                       :style="`background:${cat.color || '#6B7280'}1A; color:${cat.color || '#6B7280'}`"
                                       x-html="iconFor(cat)"></span>
-                                <span class="text-xs text-neutral-700 leading-tight line-clamp-2" x-text="cat.name"></span>
+                                <span class="text-xs text-neutral-700 dark:text-neutral-200 leading-tight line-clamp-2" x-text="cat.name"></span>
                             </button>
                         </template>
                     </div>
@@ -98,16 +98,16 @@
 
                 {{-- Classificação (apenas saída) --}}
                 <div x-show="form.type === 'saida'">
-                    <label class="block font-medium text-sm text-neutral-700 mb-1">Essa saída é uma…</label>
+                    <label class="block font-medium text-sm text-neutral-700 dark:text-neutral-300 mb-1">Essa saída é uma…</label>
                     <div class="grid grid-cols-2 gap-2">
                         <button type="button" @click="form.classification = 'necessidade'"
                             class="py-2 rounded-lg text-sm font-medium border transition"
-                            :class="form.classification === 'necessidade' ? 'border-brand-500 bg-brand-50 text-brand-700' : 'border-neutral-200 text-neutral-500'">
+                            :class="form.classification === 'necessidade' ? 'border-brand-500 bg-brand-50 dark:bg-brand-500/20 text-brand-700 dark:text-brand-200' : 'border-neutral-200 dark:border-neutral-700 text-neutral-500 dark:text-neutral-400'">
                             Necessidade
                         </button>
                         <button type="button" @click="form.classification = 'desejo'"
                             class="py-2 rounded-lg text-sm font-medium border transition"
-                            :class="form.classification === 'desejo' ? 'border-brand-500 bg-brand-50 text-brand-700' : 'border-neutral-200 text-neutral-500'">
+                            :class="form.classification === 'desejo' ? 'border-brand-500 bg-brand-50 dark:bg-brand-500/20 text-brand-700 dark:text-brand-200' : 'border-neutral-200 dark:border-neutral-700 text-neutral-500 dark:text-neutral-400'">
                             Desejo
                         </button>
                     </div>
@@ -122,20 +122,20 @@
 
                     <div x-show="showMore" x-transition class="space-y-4 mt-3">
                         <div>
-                            <label class="block font-medium text-sm text-neutral-700 mb-1">Data</label>
+                            <label class="block font-medium text-sm text-neutral-700 dark:text-neutral-300 mb-1">Data</label>
                             <input type="date" x-model="form.date"
                                 class="block w-full border-neutral-300 rounded-lg focus:border-brand-500 focus:ring-brand-500"
                                 :class="{ 'border-danger': fieldError('date') }">
                             <p x-show="fieldError('date')" x-text="fieldError('date')" class="text-sm text-danger mt-1"></p>
                         </div>
                         <div>
-                            <label class="block font-medium text-sm text-neutral-700 mb-1">Descrição (opcional)</label>
+                            <label class="block font-medium text-sm text-neutral-700 dark:text-neutral-300 mb-1">Descrição (opcional)</label>
                             <input type="text" x-model="form.description" maxlength="255" placeholder="Ex.: Mercado da semana"
                                 class="block w-full border-neutral-300 rounded-lg focus:border-brand-500 focus:ring-brand-500"
                                 :class="{ 'border-danger': fieldError('description') }">
                             <p x-show="fieldError('description')" x-text="fieldError('description')" class="text-sm text-danger mt-1"></p>
                         </div>
-                        <label class="flex items-center gap-2 text-sm text-neutral-700">
+                        <label class="flex items-center gap-2 text-sm text-neutral-700 dark:text-neutral-300">
                             <input type="checkbox" x-model="form.is_recurring"
                                 class="rounded border-neutral-300 text-brand-600 focus:ring-brand-500">
                             É uma transação que se repete todo mês

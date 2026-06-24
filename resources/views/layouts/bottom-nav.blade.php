@@ -5,11 +5,11 @@
     $isHistory = request()->routeIs('transactions.history');
     $isCategories = request()->routeIs('categories.manage');
     $itemBase = 'flex flex-col items-center justify-center gap-0.5 flex-1 py-2 text-xs font-medium transition';
-    $active = 'text-brand-600';
-    $idle = 'text-neutral-400 hover:text-neutral-600';
+    $active = 'text-brand-600 dark:text-brand-300';
+    $idle = 'text-neutral-400 hover:text-neutral-600 dark:text-neutral-500 dark:hover:text-neutral-300';
 @endphp
 
-<nav class="sm:hidden fixed bottom-0 inset-x-0 z-40 bg-white border-t border-neutral-200 pb-[env(safe-area-inset-bottom)]"
+<nav class="sm:hidden fixed bottom-0 inset-x-0 z-40 bg-white/75 dark:bg-neutral-900/70 backdrop-blur-xl border-t border-white/40 dark:border-white/10 pb-[env(safe-area-inset-bottom)]"
      aria-label="Navegação principal">
     <div class="flex items-stretch justify-around max-w-md mx-auto px-2 relative">
         {{-- Início --}}
@@ -39,13 +39,12 @@
             </button>
         </div>
 
-        {{-- Metas --}}
-        <a href="#" class="{{ $itemBase }} {{ $idle }}">
+        {{-- Categorias --}}
+        <a href="{{ route('categories.manage') }}" class="{{ $itemBase }} {{ $isCategories ? $active : $idle }}">
             <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24" aria-hidden="true">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M12 2v3m0 14v3m10-10h-3M5 12H2m15.5-6.5l-2 2m-7 7l-2 2m11 0l-2-2m-7-7l-2-2" />
-                <circle cx="12" cy="12" r="3" />
+                <path stroke-linecap="round" stroke-linejoin="round" d="M3 7a2 2 0 012-2h4l2 2h8a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2V7z" />
             </svg>
-            Metas
+            Categorias
         </a>
 
         {{-- Perfil --}}

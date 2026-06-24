@@ -26,7 +26,39 @@ function invalidateCategories() {
     categoriesCache = null;
 }
 
+/** Aplica o tema escolhido alternando a classe `dark` no <html>. */
+function applyTheme(mode) {
+    const dark = mode === 'dark' || (mode === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches);
+    document.documentElement.classList.toggle('dark', dark);
+    window.dispatchEvent(new CustomEvent('theme-changed', { detail: { mode, dark } }));
+}
+
 document.addEventListener('alpine:init', () => {
+    // ------------------------------------------------------------------
+    // Controle de tema: claro / escuro / sistema. Persiste a escolha em
+    // localStorage e aplica via classe `dark` no <html>. O script inline
+    // no <head> já aplica antes da pintura para evitar flash de tema.
+    // ------------------------------------------------------------------
+    Alpine.data('themeControl', () => ({
+        mode: 'system',
+        _mql: null,
+
+        init() {
+            this.mode = localStorage.getItem('theme') || 'system';
+            // Quando em "sistema", acompanha mudanças da preferência do SO.
+            this._mql = window.matchMedia('(prefers-color-scheme: dark)');
+            this._mql.addEventListener('change', () => {
+                if (this.mode === 'system') applyTheme('system');
+            });
+        },
+
+        set(mode) {
+            this.mode = mode;
+            localStorage.setItem('theme', mode);
+            applyTheme(mode);
+        },
+    }));
+
     // ------------------------------------------------------------------
     // Formulário de transação (registro rápido ≤3 toques + edição).
     // Global no app shell; abre via evento `open-quick-add` (botão "+") ou
@@ -405,6 +437,8 @@ document.addEventListener('alpine:init', () => {
             await this.load();
             // Recarrega quando uma transação é criada/editada em qualquer lugar do app.
             window.addEventListener('transaction-saved', () => this.load());
+            // Redesenha o gráfico com as cores do tema ao alternar claro/escuro.
+            window.addEventListener('theme-changed', () => this.renderChart());
         },
 
         async load() {
@@ -461,6 +495,10 @@ document.addEventListener('alpine:init', () => {
             const n = this.needsVsWants;
             return (n.necessidade + n.desejo) > 0;
         },
+        // Total de saídas exibido no centro da rosca.
+        get totalSaidasLabel() {
+            return centsToBRL(this.byCategory.reduce((sum, c) => sum + c.total, 0));
+        },
 
         money(cents) {
             return centsToBRL(cents);
@@ -484,21 +522,26 @@ document.addEventListener('alpine:init', () => {
             const values = this.byCategory.map((c) => c.total); // centavos
             const colors = this.byCategory.map((c, i) => this.colorFor(i, c.color));
 
+            // Cores do gráfico cientes do tema (legenda legível, bordas que separam as fatias).
+            const isDark = document.documentElement.classList.contains('dark');
+            const legendColor = isDark ? '#E5E7EB' : '#374151';
+            const sliceBorder = isDark ? 'rgba(17,24,39,0.85)' : '#ffffff';
+
             this.chart = new window.Chart(canvas, {
                 type: 'doughnut',
                 data: {
                     labels,
-                    datasets: [{ data: values, backgroundColor: colors, borderWidth: 2, borderColor: '#fff' }],
+                    datasets: [{ data: values, backgroundColor: colors, borderWidth: 3, borderColor: sliceBorder }],
                 },
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
-                    cutout: '62%',
+                    cutout: '68%',
                     animation: { duration: 300 },
                     plugins: {
                         legend: {
                             position: 'bottom',
-                            labels: { color: '#374151', font: { family: 'Inter', size: 12 }, padding: 12, usePointStyle: true, pointStyle: 'circle' },
+                            labels: { color: legendColor, font: { family: 'Inter', size: 12 }, padding: 12, usePointStyle: true, pointStyle: 'circle' },
                         },
                         tooltip: {
                             callbacks: {

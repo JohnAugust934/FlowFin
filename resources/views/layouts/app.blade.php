@@ -7,31 +7,45 @@
 
         <title>{{ config('app.name', 'FlowFin') }}</title>
 
+        {{-- Aplica o tema (claro/escuro/sistema) antes da pintura para evitar flash. --}}
+        <script>
+            (function () {
+                try {
+                    var t = localStorage.getItem('theme') || 'system';
+                    var dark = t === 'dark' || (t === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches);
+                    document.documentElement.classList.toggle('dark', dark);
+                } catch (e) {}
+            })();
+        </script>
+
         <!-- Scripts e estilos (a fonte Inter é self-hosted via @fontsource, incluída no app.css) -->
         @vite(['resources/css/app.css', 'resources/js/app.js'])
     </head>
-    <body class="font-sans antialiased text-neutral-800">
-        <div class="min-h-screen bg-neutral-50">
+    <body class="font-sans antialiased">
+        <div class="app-canvas">
             <!-- Navegação superior (desktop) -->
             @include('layouts.navigation')
 
             <!-- Cabeçalho compacto (mobile) -->
-            <header class="sm:hidden sticky top-0 z-30 bg-white border-b border-neutral-100">
+            <header class="sm:hidden sticky top-0 z-30 bg-white/70 dark:bg-neutral-900/70 backdrop-blur-xl border-b border-white/40 dark:border-white/10">
                 <div class="flex items-center justify-between h-14 px-4">
                     <a href="{{ route('dashboard') }}" class="flex items-center">
                         <x-brand-logo class="h-7 w-auto" />
                     </a>
-                    @auth
-                        <a href="{{ route('profile.edit') }}" class="flex items-center justify-center w-9 h-9 rounded-full bg-brand-50 text-brand-700 text-sm font-semibold">
-                            {{ strtoupper(substr(Auth::user()->name, 0, 1)) }}
-                        </a>
-                    @endauth
+                    <div class="flex items-center gap-2">
+                        <x-theme-toggle />
+                        @auth
+                            <a href="{{ route('profile.edit') }}" class="flex items-center justify-center w-9 h-9 rounded-full bg-brand-50 dark:bg-brand-500/20 text-brand-700 dark:text-brand-200 text-sm font-semibold">
+                                {{ strtoupper(substr(Auth::user()->name, 0, 1)) }}
+                            </a>
+                        @endauth
+                    </div>
                 </div>
             </header>
 
             <!-- Título da página (opcional) -->
             @isset($header)
-                <header class="bg-white border-b border-neutral-100">
+                <header class="bg-white/60 dark:bg-neutral-900/50 backdrop-blur-md border-b border-white/40 dark:border-white/10">
                     <div class="max-w-7xl mx-auto py-5 px-4 sm:px-6 lg:px-8">
                         {{ $header }}
                     </div>

@@ -2,8 +2,8 @@
 <x-app-layout>
     <x-slot name="header">
         <div>
-            <h1 class="text-xl font-bold text-neutral-800">Categorias</h1>
-            <p class="text-sm text-neutral-500">Organize suas entradas e saídas do seu jeito</p>
+            <h1 class="text-xl font-bold text-neutral-800 dark:text-neutral-100">Categorias</h1>
+            <p class="text-sm text-neutral-500 dark:text-neutral-400">Organize suas entradas e saídas do seu jeito</p>
         </div>
     </x-slot>
 
@@ -11,18 +11,18 @@
 
         {{-- Formulário de criar/editar --}}
         <x-card :title="null">
-            <h2 class="text-base font-semibold text-neutral-800 mb-3" x-text="editing ? 'Editar categoria' : 'Nova categoria'"></h2>
+            <h2 class="text-base font-semibold text-neutral-800 dark:text-neutral-100 mb-3" x-text="editing ? 'Editar categoria' : 'Nova categoria'"></h2>
             <form @submit.prevent="save()" class="space-y-4">
                 <div class="grid gap-4 sm:grid-cols-3">
                     <div class="sm:col-span-1">
-                        <label class="block text-sm font-medium text-neutral-700 mb-1">Nome</label>
+                        <label class="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-1">Nome</label>
                         <input type="text" x-model="form.name" placeholder="Ex.: Pets"
                             class="block w-full border-neutral-300 rounded-lg focus:border-brand-500 focus:ring-brand-500"
                             :class="{ 'border-danger': fieldError('name') }">
                         <p x-show="fieldError('name')" x-text="fieldError('name')" class="text-sm text-danger mt-1"></p>
                     </div>
                     <div>
-                        <label class="block text-sm font-medium text-neutral-700 mb-1">Ícone</label>
+                        <label class="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-1">Ícone</label>
                         <select x-model="form.icon" class="block w-full border-neutral-300 rounded-lg focus:border-brand-500 focus:ring-brand-500">
                             <option value="tag">Etiqueta</option>
                             <option value="home">Casa</option>
@@ -36,7 +36,7 @@
                         </select>
                     </div>
                     <div>
-                        <label class="block text-sm font-medium text-neutral-700 mb-1">Cor</label>
+                        <label class="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-1">Cor</label>
                         <div class="flex items-center gap-2">
                             <input type="color" x-model="form.color" class="h-10 w-14 rounded border border-neutral-300 cursor-pointer">
                             <span class="flex items-center justify-center w-10 h-10 rounded-full"
@@ -55,19 +55,19 @@
         </x-card>
 
         {{-- Carregando --}}
-        <div x-show="loading" class="text-center text-neutral-400 py-6">Carregando…</div>
+        <div x-show="loading" class="text-center text-neutral-400 dark:text-neutral-500 py-6">Carregando…</div>
 
         {{-- Categorias personalizadas --}}
         <div x-show="!loading">
-            <h2 class="text-sm font-semibold text-neutral-500 uppercase tracking-wide mb-2">Suas categorias</h2>
-            <div x-show="custom.length === 0" class="text-sm text-neutral-400 py-3">Você ainda não criou categorias.</div>
+            <h2 class="text-sm font-semibold text-neutral-500 dark:text-neutral-400 uppercase tracking-wide mb-2">Suas categorias</h2>
+            <div x-show="custom.length === 0" class="text-sm text-neutral-400 dark:text-neutral-500 py-3">Você ainda não criou categorias.</div>
             <div class="space-y-2">
                 <template x-for="cat in custom" :key="cat.id">
-                    <div class="bg-white rounded-xl border border-neutral-100 shadow-card px-4 py-3 flex items-center gap-3">
+                    <div class="glass-row shadow-card px-4 py-3 flex items-center gap-3">
                         <span class="flex items-center justify-center w-10 h-10 rounded-full shrink-0"
                               :style="`background:${cat.color || '#6B7280'}1A; color:${cat.color || '#6B7280'}`"
                               x-html="iconFor(cat)"></span>
-                        <p class="flex-1 font-medium text-neutral-800" x-text="cat.name"></p>
+                        <p class="flex-1 font-medium text-neutral-800 dark:text-neutral-100" x-text="cat.name"></p>
 
                         <template x-if="confirmingId !== cat.id">
                             <div class="flex items-center gap-1">
@@ -92,18 +92,18 @@
 
         {{-- Categorias do app (protegidas) --}}
         <div x-show="!loading">
-            <h2 class="text-sm font-semibold text-neutral-500 uppercase tracking-wide mb-2">Categorias do app</h2>
+            <h2 class="text-sm font-semibold text-neutral-500 dark:text-neutral-400 uppercase tracking-wide mb-2">Categorias do app</h2>
             <div class="grid grid-cols-2 sm:grid-cols-3 gap-2">
                 <template x-for="cat in predefined" :key="cat.id">
-                    <div class="bg-white rounded-xl border border-neutral-100 px-3 py-2 flex items-center gap-2">
+                    <div class="glass-row px-3 py-2 flex items-center gap-2">
                         <span class="flex items-center justify-center w-8 h-8 rounded-full shrink-0"
                               :style="`background:${cat.color || '#6B7280'}1A; color:${cat.color || '#6B7280'}`"
                               x-html="iconFor(cat)"></span>
-                        <span class="text-sm text-neutral-700 truncate" x-text="cat.name"></span>
+                        <span class="text-sm text-neutral-700 dark:text-neutral-200 truncate" x-text="cat.name"></span>
                     </div>
                 </template>
             </div>
-            <p class="text-xs text-neutral-400 mt-2">As categorias do app não podem ser editadas nem excluídas.</p>
+            <p class="text-xs text-neutral-400 dark:text-neutral-500 mt-2">As categorias do app não podem ser editadas nem excluídas.</p>
         </div>
     </div>
 </x-app-layout>

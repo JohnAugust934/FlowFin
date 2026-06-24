@@ -3,8 +3,8 @@
     <x-slot name="header">
         <div class="flex items-center justify-between">
             <div>
-                <h1 class="text-xl font-bold text-neutral-800">Transações</h1>
-                <p class="text-sm text-neutral-500">Suas entradas e saídas</p>
+                <h1 class="text-xl font-bold text-neutral-800 dark:text-neutral-100">Transações</h1>
+                <p class="text-sm text-neutral-500 dark:text-neutral-400">Suas entradas e saídas</p>
             </div>
             <button type="button" onclick="window.dispatchEvent(new CustomEvent('open-quick-add'))" class="btn-primary hidden sm:inline-flex">
                 + Nova
@@ -18,17 +18,17 @@
         <x-card>
             <div class="grid gap-3 sm:grid-cols-2">
                 <div>
-                    <label class="block text-sm font-medium text-neutral-700 mb-1">De</label>
+                    <label class="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-1">De</label>
                     <input type="date" x-model="filters.date_from"
                         class="block w-full border-neutral-300 rounded-lg focus:border-brand-500 focus:ring-brand-500">
                 </div>
                 <div>
-                    <label class="block text-sm font-medium text-neutral-700 mb-1">Até</label>
+                    <label class="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-1">Até</label>
                     <input type="date" x-model="filters.date_to"
                         class="block w-full border-neutral-300 rounded-lg focus:border-brand-500 focus:ring-brand-500">
                 </div>
                 <div>
-                    <label class="block text-sm font-medium text-neutral-700 mb-1">Categoria</label>
+                    <label class="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-1">Categoria</label>
                     <select x-model="filters.category_id"
                         class="block w-full border-neutral-300 rounded-lg focus:border-brand-500 focus:ring-brand-500">
                         <option value="">Todas</option>
@@ -38,7 +38,7 @@
                     </select>
                 </div>
                 <div>
-                    <label class="block text-sm font-medium text-neutral-700 mb-1">Tipo</label>
+                    <label class="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-1">Tipo</label>
                     <select x-model="filters.type"
                         class="block w-full border-neutral-300 rounded-lg focus:border-brand-500 focus:ring-brand-500">
                         <option value="">Tudo</option>
@@ -54,11 +54,11 @@
         </x-card>
 
         {{-- Carregando --}}
-        <div x-show="loading" class="text-center text-neutral-400 py-10">Carregando transações…</div>
+        <div x-show="loading" class="text-center text-neutral-400 dark:text-neutral-500 py-10">Carregando transações…</div>
 
         {{-- Vazio --}}
-        <div x-show="!loading && items.length === 0" class="text-center py-12">
-            <p class="text-neutral-500">Nenhuma transação encontrada.</p>
+        <div x-show="!loading && items.length === 0" class="glass text-center py-12">
+            <p class="text-neutral-500 dark:text-neutral-400">Nenhuma transação encontrada.</p>
             <button type="button" onclick="window.dispatchEvent(new CustomEvent('open-quick-add'))" class="btn-primary mt-4">
                 + Registrar a primeira
             </button>
@@ -67,7 +67,7 @@
         {{-- Lista --}}
         <div x-show="!loading && items.length > 0" class="space-y-2">
             <template x-for="tx in items" :key="tx.id">
-                <div class="bg-white rounded-xl border border-neutral-100 shadow-card px-4 py-3 flex items-center gap-3">
+                <div class="glass-row shadow-card px-4 py-3 flex items-center gap-3">
                     {{-- Ícone da categoria --}}
                     <span class="flex items-center justify-center w-10 h-10 rounded-full shrink-0"
                           :style="`background:${tx.category?.color || '#6B7280'}1A; color:${tx.category?.color || '#6B7280'}`"
@@ -75,13 +75,13 @@
 
                     {{-- Descrição/categoria --}}
                     <div class="min-w-0 flex-1">
-                        <p class="font-medium text-neutral-800 truncate" x-text="tx.description || categoryName(tx)"></p>
-                        <div class="flex items-center gap-2 text-xs text-neutral-500">
+                        <p class="font-medium text-neutral-800 dark:text-neutral-100 truncate" x-text="tx.description || categoryName(tx)"></p>
+                        <div class="flex items-center gap-2 text-xs text-neutral-500 dark:text-neutral-400">
                             <span x-text="categoryName(tx)"></span>
                             <span>·</span>
                             <span x-text="dateBR(tx.date)"></span>
                             <template x-if="tx.classification">
-                                <span class="px-1.5 py-0.5 rounded-full bg-neutral-100 text-neutral-600 capitalize" x-text="tx.classification"></span>
+                                <span class="px-1.5 py-0.5 rounded-full bg-neutral-100 dark:bg-neutral-700/60 text-neutral-600 dark:text-neutral-300 capitalize" x-text="tx.classification"></span>
                             </template>
                         </div>
                     </div>
@@ -122,7 +122,7 @@
             <button type="button" @click="prev()" :disabled="!canPrev" class="btn-secondary" :class="{ 'opacity-50 cursor-not-allowed': !canPrev }">
                 Anterior
             </button>
-            <span class="text-sm text-neutral-500">
+            <span class="text-sm text-neutral-500 dark:text-neutral-400">
                 Página <span x-text="meta.current_page || 1"></span> de <span x-text="meta.last_page || 1"></span>
             </span>
             <button type="button" @click="next()" :disabled="!canNext" class="btn-secondary" :class="{ 'opacity-50 cursor-not-allowed': !canNext }">

@@ -25,7 +25,7 @@
             x-transition:leave="transition ease-in duration-200"
             x-transition:leave-start="opacity-100"
             x-transition:leave-end="opacity-0"
-            class="pointer-events-auto w-full max-w-sm flex items-start gap-3 rounded-xl bg-white shadow-lg border px-4 py-3"
+            class="pointer-events-auto w-full max-w-sm flex items-start gap-3 rounded-xl bg-white dark:bg-neutral-800 shadow-lg border dark:border-neutral-700 px-4 py-3"
             :class="{
                 'border-success/30': toast.type === 'success',
                 'border-danger/30': toast.type === 'error',
@@ -47,7 +47,7 @@
                 <span x-show="toast.type === 'warning'">!</span>
             </span>
 
-            <p class="flex-1 text-sm text-neutral-700 leading-snug" x-text="toast.message"></p>
+            <p class="flex-1 text-sm text-neutral-700 dark:text-neutral-200 leading-snug" x-text="toast.message"></p>
 
             <button
                 type="button"
