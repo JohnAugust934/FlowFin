@@ -9,10 +9,10 @@
         <div class="flex items-start justify-between gap-3 mb-4">
             <div>
                 @if ($title)
-                    <h3 class="text-base font-semibold text-neutral-800">{{ $title }}</h3>
+                    <h3 class="text-base font-semibold text-neutral-800 dark:text-neutral-100">{{ $title }}</h3>
                 @endif
                 @if ($subtitle)
-                    <p class="text-sm text-neutral-500 mt-0.5">{{ $subtitle }}</p>
+                    <p class="text-sm text-neutral-500 dark:text-neutral-400 mt-0.5">{{ $subtitle }}</p>
                 @endif
             </div>
 

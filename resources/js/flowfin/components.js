@@ -26,7 +26,39 @@ function invalidateCategories() {
     categoriesCache = null;
 }
 
+/** Aplica o tema escolhido alternando a classe `dark` no <html>. */
+function applyTheme(mode) {
+    const dark = mode === 'dark' || (mode === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches);
+    document.documentElement.classList.toggle('dark', dark);
+    window.dispatchEvent(new CustomEvent('theme-changed', { detail: { mode, dark } }));
+}
+
 document.addEventListener('alpine:init', () => {
+    // ------------------------------------------------------------------
+    // Controle de tema: claro / escuro / sistema. Persiste a escolha em
+    // localStorage e aplica via classe `dark` no <html>. O script inline
+    // no <head> já aplica antes da pintura para evitar flash de tema.
+    // ------------------------------------------------------------------
+    Alpine.data('themeControl', () => ({
+        mode: 'system',
+        _mql: null,
+
+        init() {
+            this.mode = localStorage.getItem('theme') || 'system';
+            // Quando em "sistema", acompanha mudanças da preferência do SO.
+            this._mql = window.matchMedia('(prefers-color-scheme: dark)');
+            this._mql.addEventListener('change', () => {
+                if (this.mode === 'system') applyTheme('system');
+            });
+        },
+
+        set(mode) {
+            this.mode = mode;
+            localStorage.setItem('theme', mode);
+            applyTheme(mode);
+        },
+    }));
+
     // ------------------------------------------------------------------
     // Formulário de transação (registro rápido ≤3 toques + edição).
     // Global no app shell; abre via evento `open-quick-add` (botão "+") ou
@@ -395,7 +427,6 @@ document.addEventListener('alpine:init', () => {
         error: null,
         month: null,        // "aaaa-mm" de referência
         data: null,         // payload do endpoint
-        chart: null,        // instância Chart.js (rosca)
 
         // Paleta de fallback p/ categorias sem cor definida (tons da marca/semáforo).
         palette: ['#2563EB', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6', '#06B6D4', '#EC4899', '#84CC16', '#6B7280'],
@@ -413,7 +444,6 @@ document.addEventListener('alpine:init', () => {
             try {
                 this.data = await api.getDashboard(this.month);
                 this.month = this.data.month; // normalizado pelo servidor
-                this.$nextTick(() => this.renderChart());
             } catch (e) {
                 this.error = e.message;
                 toast('error', e.message);
@@ -461,6 +491,54 @@ document.addEventListener('alpine:init', () => {
             const n = this.needsVsWants;
             return (n.necessidade + n.desejo) > 0;
         },
+        // Necessidade vs. desejo como linhas de ranking (mesma linguagem visual do
+        // ranking de categorias): ícone+cor, valor em R$, % e barra de proporção.
+        get needsVsWantsBreakdown() {
+            const n = this.needsVsWants;
+            return [
+                {
+                    key: 'necessidade',
+                    name: 'Necessidade',
+                    icon: 'home',
+                    color: '#2563EB', // brand-600
+                    total: n.necessidade,
+                    moneyLabel: centsToBRL(n.necessidade),
+                    pct: n.necessidade_pct,
+                    pctLabel: n.necessidade_pct + '%',
+                },
+                {
+                    key: 'desejo',
+                    name: 'Desejo',
+                    icon: 'sparkles',
+                    color: '#10B981', // emerald-500
+                    total: n.desejo,
+                    moneyLabel: centsToBRL(n.desejo),
+                    pct: n.desejo_pct,
+                    pctLabel: n.desejo_pct + '%',
+                },
+            ];
+        },
+        // Soma das saídas do mês (centavos) e rótulo formatado.
+        get totalSaidas() {
+            return this.byCategory.reduce((sum, c) => sum + c.total, 0);
+        },
+        get totalSaidasLabel() {
+            return centsToBRL(this.totalSaidas);
+        },
+        // Ranking de categorias com cor resolvida, valor em R$ e % do total de saídas.
+        get categoryBreakdown() {
+            const total = this.totalSaidas || 1;
+            return this.byCategory.map((c, i) => ({
+                id: c.category_id,
+                name: c.name,
+                icon: c.icon,
+                color: this.colorFor(i, c.color),
+                total: c.total,
+                moneyLabel: centsToBRL(c.total),
+                pct: (c.total / total) * 100,
+                pctLabel: Math.round((c.total / total) * 100) + '%',
+            }));
+        },
 
         money(cents) {
             return centsToBRL(cents);
@@ -468,46 +546,8 @@ document.addEventListener('alpine:init', () => {
         colorFor(index, color) {
             return color || this.palette[index % this.palette.length];
         },
-
-        // --- Gráfico de rosca ---
-        renderChart() {
-            const canvas = this.$refs.chartCanvas;
-            if (!canvas) return;
-
-            if (this.chart) {
-                this.chart.destroy();
-                this.chart = null;
-            }
-            if (!this.hasCategoryData) return;
-
-            const labels = this.byCategory.map((c) => c.name);
-            const values = this.byCategory.map((c) => c.total); // centavos
-            const colors = this.byCategory.map((c, i) => this.colorFor(i, c.color));
-
-            this.chart = new window.Chart(canvas, {
-                type: 'doughnut',
-                data: {
-                    labels,
-                    datasets: [{ data: values, backgroundColor: colors, borderWidth: 2, borderColor: '#fff' }],
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    cutout: '62%',
-                    animation: { duration: 300 },
-                    plugins: {
-                        legend: {
-                            position: 'bottom',
-                            labels: { color: '#374151', font: { family: 'Inter', size: 12 }, padding: 12, usePointStyle: true, pointStyle: 'circle' },
-                        },
-                        tooltip: {
-                            callbacks: {
-                                label: (ctx) => ` ${ctx.label}: ${centsToBRL(ctx.parsed)}`,
-                            },
-                        },
-                    },
-                },
-            });
+        categoryIcon(icon) {
+            return iconSvg(icon, 'w-5 h-5');
         },
     }));
 });

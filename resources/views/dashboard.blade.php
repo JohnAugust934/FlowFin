@@ -1,11 +1,12 @@
 {{-- Dashboard do mês: resumo entrou/saiu/sobrou, gráfico de rosca por categoria
-     e proporção necessidade vs. desejo. Dados de /api/dashboard (valores em centavos). --}}
+     e proporção necessidade vs. desejo. Dados de /api/dashboard (valores em centavos).
+     Estética de vidro fosco (glassmorphism / iOS 26) sobre o fundo ambiente. --}}
 <x-app-layout>
     <x-slot name="header">
         <div class="flex items-center justify-between">
             <div>
-                <h1 class="text-xl font-bold text-neutral-800">Resumo do mês</h1>
-                <p class="text-sm text-neutral-500">Quanto entrou, quanto saiu e o que sobrou</p>
+                <h1 class="text-xl font-bold text-neutral-800 dark:text-neutral-100">Resumo do mês</h1>
+                <p class="text-sm text-neutral-500 dark:text-neutral-400">Quanto entrou, quanto saiu e o que sobrou</p>
             </div>
             <button type="button" onclick="window.dispatchEvent(new CustomEvent('open-quick-add'))" class="btn-primary hidden sm:inline-flex">
                 + Nova
@@ -15,59 +16,117 @@
 
     <div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-5" x-data="dashboard" x-cloak>
 
-        {{-- Seletor de mês --}}
-        <div class="flex items-center justify-between">
-            <button type="button" @click="prevMonth()" class="p-2 rounded-lg text-neutral-500 hover:bg-neutral-100" aria-label="Mês anterior">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" /></svg>
-            </button>
-            <span class="text-base font-semibold text-neutral-700 capitalize" x-text="monthLabel"></span>
-            <button type="button" @click="nextMonth()" :disabled="!canGoNext"
-                    class="p-2 rounded-lg text-neutral-500 hover:bg-neutral-100" :class="{ 'opacity-30 cursor-not-allowed': !canGoNext }" aria-label="Próximo mês">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" /></svg>
-            </button>
+        {{-- Seletor de mês (pílula de vidro) --}}
+        <div class="flex items-center justify-center">
+            <div class="glass inline-flex items-center gap-1 px-1.5 py-1 !rounded-full">
+                <button type="button" @click="prevMonth()" class="p-1.5 rounded-full text-neutral-500 dark:text-neutral-300 hover:bg-white/60 dark:hover:bg-white/10 transition" aria-label="Mês anterior">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" /></svg>
+                </button>
+                <span class="text-sm font-semibold text-neutral-700 dark:text-neutral-100 capitalize min-w-[8.5rem] text-center" x-text="monthLabel"></span>
+                <button type="button" @click="nextMonth()" :disabled="!canGoNext"
+                        class="p-1.5 rounded-full text-neutral-500 dark:text-neutral-300 hover:bg-white/60 dark:hover:bg-white/10 transition" :class="{ 'opacity-30 cursor-not-allowed': !canGoNext }" aria-label="Próximo mês">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" /></svg>
+                </button>
+            </div>
         </div>
 
         {{-- Carregando --}}
-        <div x-show="loading" class="text-center text-neutral-400 py-16">Carregando o resumo…</div>
+        <div x-show="loading" class="glass p-10 text-center text-neutral-500 dark:text-neutral-400">Carregando o resumo…</div>
 
         {{-- Erro --}}
-        <div x-show="!loading && error" class="text-center py-12">
+        <div x-show="!loading && error" class="glass p-8 text-center">
             <p class="text-danger" x-text="error"></p>
             <button type="button" @click="load()" class="btn-secondary mt-4">Tentar de novo</button>
         </div>
 
         <template x-if="!loading && !error">
             <div class="space-y-5">
-                {{-- Cards de resumo --}}
-                <div class="grid grid-cols-2 sm:grid-cols-3 gap-3">
-                    {{-- Entrou --}}
-                    <div class="card !p-4">
-                        <p class="text-xs font-medium text-neutral-500">Entrou</p>
-                        <p class="mt-1 text-lg font-bold text-emerald-600 break-words" x-text="money(totals.entrou)"></p>
-                    </div>
-                    {{-- Saiu --}}
-                    <div class="card !p-4">
-                        <p class="text-xs font-medium text-neutral-500">Saiu</p>
-                        <p class="mt-1 text-lg font-bold text-danger break-words" x-text="money(totals.saiu)"></p>
-                    </div>
-                    {{-- Sobrou --}}
-                    <div class="card !p-4 col-span-2 sm:col-span-1">
-                        <p class="text-xs font-medium text-neutral-500">Sobrou</p>
-                        <p class="mt-1 text-lg font-bold break-words"
-                           :class="totals.sobrou >= 0 ? 'text-brand-600' : 'text-danger'"
-                           x-text="money(totals.sobrou)"></p>
+                {{-- Painel principal: o que sobrou (figura-herói) + entrou/saiu --}}
+                <div class="glass relative overflow-hidden p-6">
+                    {{-- Brilho de marca no topo do vidro --}}
+                    <div class="pointer-events-none absolute -top-16 -right-10 w-56 h-56 rounded-full opacity-40 blur-3xl"
+                         :class="totals.sobrou >= 0 ? 'bg-emerald-400/40' : 'bg-danger/40'"></div>
+
+                    <p class="text-sm font-medium text-neutral-500 dark:text-neutral-400">Sobrou neste mês</p>
+                    <p class="mt-1 text-4xl sm:text-5xl font-extrabold tracking-tight break-words"
+                       :class="totals.sobrou >= 0 ? 'text-brand-600 dark:text-brand-300' : 'text-danger'"
+                       x-text="money(totals.sobrou)"></p>
+                    <p class="mt-1 text-xs text-neutral-400 dark:text-neutral-500"
+                       x-text="totals.sobrou >= 0 ? 'Você fechou o mês no positivo.' : 'As saídas passaram das entradas neste mês.'"></p>
+
+                    {{-- Chips entrou/saiu --}}
+                    <div class="mt-5 grid grid-cols-2 gap-3">
+                        <div class="glass-row p-3">
+                            <div class="flex items-center gap-1.5 text-xs font-medium text-neutral-500 dark:text-neutral-400">
+                                <span class="flex items-center justify-center w-5 h-5 rounded-full bg-emerald-500/15 text-emerald-600 dark:text-emerald-400">
+                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 19V5m0 0l-6 6m6-6l6 6" /></svg>
+                                </span>
+                                Entrou
+                            </div>
+                            <p class="mt-1 text-lg font-bold text-emerald-600 dark:text-emerald-400 break-words" x-text="money(totals.entrou)"></p>
+                        </div>
+                        <div class="glass-row p-3">
+                            <div class="flex items-center gap-1.5 text-xs font-medium text-neutral-500 dark:text-neutral-400">
+                                <span class="flex items-center justify-center w-5 h-5 rounded-full bg-danger/15 text-danger">
+                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 5v14m0 0l6-6m-6 6l-6-6" /></svg>
+                                </span>
+                                Saiu
+                            </div>
+                            <p class="mt-1 text-lg font-bold text-danger break-words" x-text="money(totals.saiu)"></p>
+                        </div>
                     </div>
                 </div>
 
-                {{-- Gráfico de rosca por categoria --}}
+                {{-- Para onde foi o dinheiro: ranking de categorias com barras de proporção --}}
                 <x-card title="Para onde foi o dinheiro" subtitle="Saídas por categoria no mês">
                     {{-- Com dados --}}
-                    <div x-show="hasCategoryData" class="relative h-72">
-                        <canvas x-ref="chartCanvas"></canvas>
+                    <div x-show="hasCategoryData" class="space-y-4">
+                        {{-- Total + barra de visão geral (composição das saídas) --}}
+                        <div>
+                            <div class="flex items-baseline justify-between">
+                                <span class="text-[11px] uppercase tracking-wide text-neutral-400 dark:text-neutral-500">Total de saídas</span>
+                                <span class="text-lg font-extrabold tracking-tight text-neutral-800 dark:text-neutral-100" x-text="totalSaidasLabel"></span>
+                            </div>
+                            <div class="mt-2 flex w-full h-2.5 rounded-full overflow-hidden bg-neutral-200/70 dark:bg-neutral-700/50">
+                                <template x-for="cat in categoryBreakdown" :key="cat.id">
+                                    <div class="h-full first:rounded-l-full last:rounded-r-full transition-all duration-500"
+                                         :style="`width: ${cat.pct}%; background-color: ${cat.color}`"
+                                         :title="`${cat.name}: ${cat.pctLabel}`"></div>
+                                </template>
+                            </div>
+                        </div>
+
+                        {{-- Ranking de categorias --}}
+                        <ul class="space-y-3">
+                            <template x-for="cat in categoryBreakdown" :key="cat.id">
+                                <li>
+                                    <div class="flex items-center gap-3">
+                                        {{-- Ícone/cor da categoria --}}
+                                        <span class="flex items-center justify-center w-9 h-9 rounded-xl shrink-0"
+                                              :style="`background-color: ${cat.color}1F; color: ${cat.color}`"
+                                              x-html="categoryIcon(cat.icon)"></span>
+                                        <div class="min-w-0 flex-1">
+                                            <div class="flex items-baseline justify-between gap-2">
+                                                <span class="font-medium text-[15px] text-neutral-800 dark:text-neutral-100 truncate" x-text="cat.name"></span>
+                                                <span class="font-bold text-neutral-800 dark:text-neutral-100 whitespace-nowrap" x-text="cat.moneyLabel"></span>
+                                            </div>
+                                            {{-- Barra de proporção da categoria --}}
+                                            <div class="mt-1.5 flex items-center gap-2">
+                                                <div class="flex-1 h-1.5 rounded-full overflow-hidden bg-neutral-200/60 dark:bg-neutral-700/40">
+                                                    <div class="h-full rounded-full transition-all duration-500"
+                                                         :style="`width: ${cat.pct}%; background-color: ${cat.color}`"></div>
+                                                </div>
+                                                <span class="text-xs font-medium text-neutral-400 dark:text-neutral-500 w-9 text-right" x-text="cat.pctLabel"></span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </li>
+                            </template>
+                        </ul>
                     </div>
                     {{-- Estado vazio --}}
                     <div x-show="!hasCategoryData" class="text-center py-10">
-                        <p class="text-neutral-500">Nenhuma saída registrada neste mês.</p>
+                        <p class="text-neutral-500 dark:text-neutral-400">Nenhuma saída registrada neste mês.</p>
                         <button type="button" onclick="window.dispatchEvent(new CustomEvent('open-quick-add'))" class="btn-primary mt-4">
                             + Registrar uma saída
                         </button>
@@ -77,38 +136,52 @@
                 {{-- Necessidade vs. Desejo --}}
                 <x-card title="Necessidade vs. desejo" subtitle="Proporção das saídas classificadas">
                     <template x-if="hasClassification">
-                        <div class="space-y-3">
-                            {{-- Barra de proporção --}}
-                            <div class="flex w-full h-4 rounded-full overflow-hidden bg-neutral-200">
-                                <div class="bg-brand-600 h-full transition-all duration-500" :style="`width: ${needsVsWants.necessidade_pct}%`"></div>
-                                <div class="bg-emerald-500 h-full transition-all duration-500" :style="`width: ${needsVsWants.desejo_pct}%`"></div>
+                        <div class="space-y-4">
+                            {{-- Barra de visão geral (composição empilhada) --}}
+                            <div class="flex w-full h-2.5 rounded-full overflow-hidden bg-neutral-200/70 dark:bg-neutral-700/50">
+                                <template x-for="row in needsVsWantsBreakdown" :key="row.key">
+                                    <div class="h-full first:rounded-l-full last:rounded-r-full transition-all duration-500"
+                                         :style="`width: ${row.pct}%; background-color: ${row.color}`"
+                                         :title="`${row.name}: ${row.pctLabel}`"></div>
+                                </template>
                             </div>
-                            <div class="flex items-center justify-between text-sm">
-                                <div class="flex items-center gap-2">
-                                    <span class="w-3 h-3 rounded-full bg-brand-600"></span>
-                                    <span class="text-neutral-700">Necessidade</span>
-                                    <span class="font-semibold text-neutral-800" x-text="needsVsWants.necessidade_pct + '%'"></span>
-                                    <span class="text-neutral-400" x-text="'(' + money(needsVsWants.necessidade) + ')'"></span>
-                                </div>
-                            </div>
-                            <div class="flex items-center justify-between text-sm">
-                                <div class="flex items-center gap-2">
-                                    <span class="w-3 h-3 rounded-full bg-emerald-500"></span>
-                                    <span class="text-neutral-700">Desejo</span>
-                                    <span class="font-semibold text-neutral-800" x-text="needsVsWants.desejo_pct + '%'"></span>
-                                    <span class="text-neutral-400" x-text="'(' + money(needsVsWants.desejo) + ')'"></span>
-                                </div>
-                            </div>
+
+                            {{-- Linhas no mesmo padrão do ranking de categorias --}}
+                            <ul class="space-y-3">
+                                <template x-for="row in needsVsWantsBreakdown" :key="row.key">
+                                    <li>
+                                        <div class="flex items-center gap-3">
+                                            <span class="flex items-center justify-center w-9 h-9 rounded-xl shrink-0"
+                                                  :style="`background-color: ${row.color}1F; color: ${row.color}`"
+                                                  x-html="categoryIcon(row.icon)"></span>
+                                            <div class="min-w-0 flex-1">
+                                                <div class="flex items-baseline justify-between gap-2">
+                                                    <span class="font-medium text-[15px] text-neutral-800 dark:text-neutral-100 truncate" x-text="row.name"></span>
+                                                    <span class="font-bold text-neutral-800 dark:text-neutral-100 whitespace-nowrap" x-text="row.moneyLabel"></span>
+                                                </div>
+                                                <div class="mt-1.5 flex items-center gap-2">
+                                                    <div class="flex-1 h-1.5 rounded-full overflow-hidden bg-neutral-200/60 dark:bg-neutral-700/40">
+                                                        <div class="h-full rounded-full transition-all duration-500"
+                                                             :style="`width: ${row.pct}%; background-color: ${row.color}`"></div>
+                                                    </div>
+                                                    <span class="text-xs font-medium text-neutral-400 dark:text-neutral-500 w-9 text-right" x-text="row.pctLabel"></span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </li>
+                                </template>
+                            </ul>
+
                             {{-- Nota de saídas sem classificação --}}
                             <template x-if="needsVsWants.sem_classificacao > 0">
-                                <p class="text-xs text-neutral-400 pt-1">
+                                <p class="text-xs text-neutral-400 dark:text-neutral-500 pt-1">
                                     <span x-text="money(needsVsWants.sem_classificacao)"></span> em saídas ainda não classificadas não entram nesta conta.
                                 </p>
                             </template>
                         </div>
                     </template>
                     <template x-if="!hasClassification">
-                        <p class="text-center text-neutral-500 py-6">Classifique suas saídas como necessidade ou desejo para ver a proporção aqui.</p>
+                        <p class="text-center text-neutral-500 dark:text-neutral-400 py-6">Classifique suas saídas como necessidade ou desejo para ver a proporção aqui.</p>
                     </template>
                 </x-card>
             </div>

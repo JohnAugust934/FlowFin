@@ -14,10 +14,39 @@
     display: none !important;
 }
 
+@layer base {
+    /* Permite que controles nativos (scrollbar, etc.) sigam o tema. */
+    html {
+        color-scheme: light dark;
+    }
+
+    /* Transição suave ao alternar entre claro e escuro. */
+    body {
+        @apply text-neutral-800 dark:text-neutral-100;
+        transition: background-color 0.3s ease, color 0.3s ease;
+    }
+
+    /* Campos de formulário legíveis no tema escuro (o plugin forms assume fundo claro). */
+    .dark input[type='text'],
+    .dark input[type='email'],
+    .dark input[type='password'],
+    .dark input[type='number'],
+    .dark input[type='date'],
+    .dark input[type='search'],
+    .dark select,
+    .dark textarea {
+        @apply bg-neutral-900/60 border-neutral-700 text-neutral-100 placeholder-neutral-500;
+    }
+
+    .dark input[type='checkbox'] {
+        @apply bg-neutral-900/60 border-neutral-600;
+    }
+}
+
 @layer components {
     /* Botão base reutilizado pelos botões do design system. */
     .btn {
-        @apply inline-flex items-center justify-center gap-2 px-4 py-2 rounded-lg font-semibold text-sm tracking-wide transition duration-150 ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed;
+        @apply inline-flex items-center justify-center gap-2 px-4 py-2 rounded-lg font-semibold text-sm tracking-wide transition duration-150 ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed dark:focus:ring-offset-neutral-900;
     }
 
     .btn-primary {
@@ -25,7 +54,7 @@
     }
 
     .btn-secondary {
-        @apply btn bg-white text-neutral-700 border border-neutral-300 shadow-sm hover:bg-neutral-50 focus:ring-brand-500;
+        @apply btn bg-white/70 text-neutral-700 border border-neutral-300 shadow-sm hover:bg-white focus:ring-brand-500 dark:bg-neutral-800/70 dark:text-neutral-200 dark:border-neutral-700 dark:hover:bg-neutral-800;
     }
 
     .btn-success {
@@ -36,8 +65,69 @@
         @apply btn bg-danger text-white shadow-sm hover:bg-danger-dark focus:ring-danger;
     }
 
-    /* Cartão padrão para resumos e seções. */
+    /* ---------------------------------------------------------------
+       Linguagem visual de vidro fosco (glassmorphism / iOS 26).
+       O fundo ambiente (app-canvas) cria as manchas de cor que o
+       desfoque das superfícies revela — sem ele, o vidro não "lê".
+       --------------------------------------------------------------- */
+
+    /* Tela de fundo com manchas suaves de cor (azul da marca + verde). */
+    .app-canvas {
+        @apply relative min-h-screen;
+        background-color: #eef2fb;
+        background-image:
+            radial-gradient(42rem 42rem at 12% -8%, rgba(37, 99, 235, 0.16), transparent 60%),
+            radial-gradient(38rem 38rem at 108% 6%, rgba(16, 185, 129, 0.14), transparent 55%);
+        background-attachment: fixed;
+    }
+
+    .dark .app-canvas {
+        background-color: #0b1020;
+        background-image:
+            radial-gradient(44rem 44rem at 12% -8%, rgba(37, 99, 235, 0.26), transparent 60%),
+            radial-gradient(40rem 40rem at 108% 6%, rgba(16, 185, 129, 0.16), transparent 55%);
+    }
+
+    /* Superfície de vidro principal (painéis em destaque do dashboard). */
+    .glass {
+        @apply rounded-3xl border shadow-glass;
+        background-color: rgba(255, 255, 255, 0.60);
+        border-color: rgba(255, 255, 255, 0.55);
+        backdrop-filter: blur(20px) saturate(135%);
+        -webkit-backdrop-filter: blur(20px) saturate(135%);
+    }
+
+    .dark .glass {
+        @apply shadow-glass-dark;
+        background-color: rgba(22, 28, 45, 0.55);
+        border-color: rgba(255, 255, 255, 0.08);
+    }
+
+    /* Cartão padrão (resumos e seções) — agora translúcido e ciente do tema. */
     .card {
-        @apply bg-white rounded-2xl shadow-card border border-neutral-100 p-5;
+        @apply rounded-2xl border p-5 shadow-card;
+        background-color: rgba(255, 255, 255, 0.72);
+        border-color: rgba(255, 255, 255, 0.55);
+        backdrop-filter: blur(12px) saturate(125%);
+        -webkit-backdrop-filter: blur(12px) saturate(125%);
+    }
+
+    .dark .card {
+        background-color: rgba(24, 30, 46, 0.60);
+        border-color: rgba(255, 255, 255, 0.07);
+    }
+
+    /* Linha de lista (transações, categorias) — vidro mais discreto. */
+    .glass-row {
+        @apply rounded-xl border;
+        background-color: rgba(255, 255, 255, 0.66);
+        border-color: rgba(255, 255, 255, 0.5);
+        backdrop-filter: blur(8px);
+        -webkit-backdrop-filter: blur(8px);
+    }
+
+    .dark .glass-row {
+        background-color: rgba(26, 32, 49, 0.60);
+        border-color: rgba(255, 255, 255, 0.06);
     }
 }
