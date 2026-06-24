@@ -1,6 +1,6 @@
 ---
 title: FlowFin
-modified: Added Task 2.6 (server-side filters on transactions API) from task-02-05.log.md finding. Modified by the Manager.
+modified: Added Task 2.7 (mobile visual refinement + categories nav) from Stage 2 holistic verification (user visual validation). Previously added Task 2.6. Modified by the Manager.
 ---
 
 # APM Plan
@@ -46,8 +46,12 @@ subgraph S2["Stage 2: Núcleo Financeiro (MVP)"]
   T2_4["2.4 Dashboard + Gráfico<br/><i>Frontend Agent</i>"]
   T2_5["2.5 Histórico com Filtros<br/><i>Frontend Agent</i>"]
   T2_6["2.6 Filtros server-side na API<br/><i>Backend Agent</i>"]
+  T2_7["2.7 Refinamento Visual Mobile & Nav Categorias<br/><i>Frontend Agent</i>"]
   T2_1 --> T2_2
   T2_1 --> T2_6
+  T2_3 --> T2_7
+  T2_4 --> T2_7
+  T2_5 --> T2_7
 end
 
 subgraph S3["Stage 3: Consciência & Economia"]
@@ -130,6 +134,7 @@ style T1_2 fill:#a8dadc,color:#000
 style T2_3 fill:#a8dadc,color:#000
 style T2_4 fill:#a8dadc,color:#000
 style T2_5 fill:#a8dadc,color:#000
+style T2_7 fill:#a8dadc,color:#000
 style T3_3 fill:#a8dadc,color:#000
 style T3_4 fill:#a8dadc,color:#000
 style T4_3 fill:#a8dadc,color:#000
@@ -290,6 +295,19 @@ style T5_4 fill:#a8dadc,color:#000
 1. Adicionar leitura e validação dos query params no `index` (FormRequest ou validação inline).
 2. Aplicar os filtros à query escopada por usuário, preservando `with('category')` e `paginate(20)`.
 3. Escrever feature tests dos filtros (isolados, combinados, paginação, escopo).
+
+### Task 2.7: Refinamento Visual Mobile & Navegação de Categorias - Frontend Agent
+
+* **Objective:** Elevar a qualidade visual mobile das telas do MVP — sobretudo a forma como os dados são exibidos — para um acabamento moderno e distinto, e tornar a gestão de categorias acessível no celular.
+* **Output:** Menu inferior mobile com acesso à gestão de categorias; telas do MVP (dashboard em primeiro lugar, depois histórico, registro rápido e categorias) com tratamento visual mais moderno e distinto, mobile-first, mantendo a paleta/tipografia/cores semafóricas do design system e sem quebrar contratos de API, eventos JS, formatação R$ ou acessibilidade.
+* **Validation:** No celular, a gestão de categorias é alcançável e funciona (criar/editar/excluir); o dashboard exibe os dados de forma clara e visualmente refinada; as telas mantêm consistência visual entre si e com o design system; nenhum erro de console; build compila; validação visual guiada confirmada pelo usuário.
+* **Guidance:** Achado da verificação holística de fim do Stage 2: (1) o `bottom-nav` mobile não tem link para `categories.manage` — o slot "Metas" é um placeholder morto (`href="#"`) de um recurso de Stage futuro; surgir a navegação de Categorias no mobile. (2) O usuário pediu um visual mais moderno e distinto ("que não pareça template de IA"), com foco em como os dados são exibidos no mobile. Usar a skill de design de frontend para direção estética. Permanecer dentro dos tokens do design system (gradientes azul `#2563EB→#1E3A8A` / verde `#10B981→#059669`, cinza `#6B7280`, semafóricas, fonte Inter). Reusar os componentes existentes (`x-card`, `x-button`, etc.) elevando o tratamento, sem introduzir estilos fora da paleta. Não alterar endpoints, o ponto de escrita `api.persistTransaction`, os eventos `transaction-saved`/`open-quick-add`/`edit-transaction`, nem a formatação R$↔centavos.
+* **Dependencies:** Task 2.3, Task 2.4, Task 2.5.
+
+1. Tornar a gestão de categorias acessível no menu inferior mobile (`bottom-nav`).
+2. Refinar a exibição de dados do dashboard (cards, gráfico, proporção necessidade/desejo) para um visual moderno e distinto no mobile.
+3. Propagar a linguagem visual refinada para histórico, registro rápido e categorias, mantendo consistência.
+4. Validar build e fluxo visual de forma guiada com o usuário.
 
 ## Stage 3: Consciência & Economia
 

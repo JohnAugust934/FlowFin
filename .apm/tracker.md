@@ -18,6 +18,7 @@ title: FlowFin
 | 2.4 | Done | frontend-agent | |
 | 2.5 | Done | frontend-agent | |
 | 2.6 | Done | backend-agent | |
+| 2.7 | Active | frontend-agent | feature/refino-visual-mobile |
 
 ## Worker Tracking
 
@@ -45,6 +46,10 @@ title: FlowFin
 - 2.3+2.5 done/merged. Frontend established: central write point `api.persistTransaction` (offline interception target for 5.2); JS utils in `resources/js/flowfin/` (api, format R$↔centavos, icons Heroicons, components Alpine); global transaction form (bottom-sheet/modal) opened via `open-quick-add`; events `transaction-saved`/`edit-transaction`; histórico at `/transacoes`, categorias at `/categorias`. App shell layouts modified to wire screens.
 - Task 2.6 added to Plan (Manager authority) from 2.5 finding: API `index` ignored filter params. 2.6 adds server-side `date_from/date_to/category_id/type` to `GET /api/transactions` (UI already sends them).
 - 2.4 e 2.6 mescladas em develop (Manager 2). Verificação integrada na pasta principal: npm install + npm run build ✓; suíte completa 69/69 ✓ (222 asserções) — as 7 falhas de Vite manifest eram só do worktree sem build. Commits de merge: 2.6 e 2.4 (--no-ff). Worktrees removidos, branches apagadas.
-- PENDENTE antes de declarar Stage 2 completo: validação visual guiada do usuário cobrindo o fluxo MVP (registrar ≤3 toques → dashboard/gráfico/% necessidade-desejo → histórico com filtros server-side). Junta as validações ainda não confirmadas de 2.3, 2.4 e 2.5. Após confirmação: collapse do Stage 2 + Stage summary + despacho 3.1.
+- Validação visual guiada do MVP (usuário, com seeder TestDataSeeder + usuário teste@flowfin.com.br/senha1234, e-mail verificado): fluxo aprovado funcionalmente (dados, gráfico, filtros, registro OK). Surgiram 2 ajustes de Frontend → Task 2.7.
+- Task 2.7 adicionada (Manager authority) da verificação holística: (a) bottom-nav mobile sem link p/ categories.manage (slot "Metas" é placeholder morto href="#"); (b) usuário pediu refino visual mobile moderno/distinto, foco na exibição de dados, usando a skill de frontend-design. Despachada sequencialmente em feature/refino-visual-mobile na pasta principal.
+- NOTA contexto Worker: chats dos Workers foram fechados; cada novo dispatch reinicia o Worker em chat novo (sem memória de trabalho das Tasks anteriores). Tratar dependências com contexto explícito por caminho de arquivo (não confiar em "seu trabalho anterior").
+- Após 2.7 (merge + validação visual): Stage 2 completo → Stage summary + despacho 3.1.
+- Utilitário: `php artisan db:seed --class=TestDataSeeder` recria usuário de teste + dados (idempotente). Commitado em develop.
 - GIT LESSON (do not repeat): never delete/recreate a feature branch a Worker is using — a Worker commit (2.1, `5ddba2f`) was nearly lost by branch -D + recreate; recovered via the commit object. Manager edits planning docs on `develop` only; feature branches must not modify tracker/index (avoids merge conflicts via 3-way merge).
 
