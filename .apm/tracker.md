@@ -24,14 +24,15 @@ title: FlowFin
 
 | Task | Status | Agent | Branch |
 |------|--------|-------|--------|
-| 3.1 | Active | backend-agent | feature/servicos-consciencia-economia |
+| 3.1 | Done | backend-agent | |
+| 3.2 | Active | backend-agent | feature/relatorio-onde-economizar |
 
 ## Worker Tracking
 
 | Agent | Instance | Notes |
 |-------|----------|-------|
 | devops-docs-agent | 1 | Initialized; completed Task 1.1 (next work in Stage 6) |
-| backend-agent | 1 | Completed 1.3, 1.4, 2.1, 2.2, 2.6 |
+| backend-agent | 1 | Completed 1.3, 1.4, 2.1, 2.2, 2.6, 3.1 |
 | frontend-agent | 1 | Completed 1.2, 2.3, 2.4, 2.5, 2.7 |
 
 ## Version Control
@@ -57,7 +58,9 @@ title: FlowFin
 - 2.7 DONE/mesclada em develop (merge `--no-ff`). Refino visual mobile (glassmorphism/iOS 26 + tema claro/escuro/sistema), nav de categorias no mobile, histórico arejado, ícone da marca no topo. Donut do dashboard SUBSTITUÍDO por ranking de categorias com barras de proporção (Spec pedia rosca; usuário aprovou a troca de forma) e bloco "Necessidade vs. desejo" harmonizado no mesmo padrão. Chart.js removido do bundle (~90→21KB gzip; ainda em package.json — limpeza futura opcional). Verificação final: build ✓ + 69/69 testes ✓. Branch apagada.
 - Findings 2.7 p/ depois: Perfil + dropdown desktop sem dark theme (Perfil cai na Task 5.4; dropdown = ajuste curto opcional). Componentes compartilhados (.card/toast/transaction-form) agora translúcidos/cientes de tema — UIs das Stages 3/4 herdam isso (reusar como estão).
 - Stage 2 COMPLETO — MVP utilizável validado pelo usuário (registrar → dashboard/ranking → histórico/filtros). Stage summary no Index.
-- 3.1 despachada (Backend, caminho crítico) em feature/servicos-consciencia-economia na pasta principal: recorrentes, top 3, linha do tempo diária, comparativo mês a mês, orçamentos por categoria (status 80/100), meta de economia mensal, detector de gastos invisíveis. Reusa agregados/cache da 2.2 (TransactionObserver). 3.2 depende de 3.1; UIs 3.3/3.4 dependem de 3.1/3.2.
+- 3.1 DONE/mesclada (commit 93f2b18). Serviços+endpoints: recorrentes/projeção, insights (top 3 transações de saída, linha do tempo diária, comparativo mês a mês), invisíveis, orçamentos (status ok/alerta/estourado 80/100), meta de economia. NOVA coluna `users.monthly_savings_goal` (centavos, nullable) — Score do Stage 4 (peso 30%) depende dela + `PUT /api/savings-goal`. Observers de Recurrence/Budget + TransactionObserver estendido. Contratos JSON documentados no task-03-01.log.md (todos centavos, month=aaaa-mm) p/ UIs 3.3/3.4. Verificação: migrate + 100/100 testes ✓.
+- A confirmar na UI 3.3: "Top 3 maiores gastos" foi implementado como as 3 TRANSAÇÕES de saída de maior valor (não top 3 categorias) — ajuste pequeno se o produto quiser categorias.
+- 3.2 despachada (Backend, sequencial, feature/relatorio-onde-economizar): Relatório "Onde Economizar" (sugestões determinísticas sobre maiores Desejos + recorrentes). Depende de 3.1. Após 3.2: despachar UIs 3.3 (Consciência) + 3.4 (Economia) ao Frontend como batch (ambos contratos prontos).
 - Utilitário: `php artisan db:seed --class=TestDataSeeder` recria usuário de teste (teste@flowfin.com.br/senha1234, e-mail verificado) + dados (idempotente). Commitado em develop.
 - GIT LESSON (do not repeat): never delete/recreate a feature branch a Worker is using — a Worker commit (2.1, `5ddba2f`) was nearly lost by branch -D + recreate; recovered via the commit object. Manager edits planning docs on `develop` only; feature branches must not modify tracker/index (avoids merge conflicts via 3-way merge).
 
