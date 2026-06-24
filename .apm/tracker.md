@@ -33,15 +33,17 @@ title: FlowFin
 
 | Task | Status | Agent | Branch |
 |------|--------|-------|--------|
-| 4.1 | Active | backend-agent | feature/score-metas-investimentos |
-| 4.2 | Active | backend-agent | feature/score-metas-investimentos |
+| 4.1 | Done | backend-agent | |
+| 4.2 | Done | backend-agent | |
+| 4.3 | Active | frontend-agent | feature/ui-mentalidade-direcionamento |
+| 4.4 | Active | frontend-agent | feature/ui-mentalidade-direcionamento |
 
 ## Worker Tracking
 
 | Agent | Instance | Notes |
 |-------|----------|-------|
 | devops-docs-agent | 1 | Initialized; completed Task 1.1 (next work in Stage 6) |
-| backend-agent | 1 | Completed 1.3, 1.4, 2.1, 2.2, 2.6, 3.1, 3.2 |
+| backend-agent | 1 | Completed 1.3, 1.4, 2.1, 2.2, 2.6, 3.1, 3.2, 4.1, 4.2 |
 | frontend-agent | 1 | Completed 1.2, 2.3, 2.4, 2.5, 2.7, 3.3, 3.4 |
 
 ## Version Control
@@ -72,7 +74,8 @@ title: FlowFin
 - 3.2 DONE/mesclada (commit ccb9b10). `SavingsReportService` + `GET /api/savings-report?month=aaaa-mm` → `{month, total_potential_savings, count, suggestions[{type(categoria_desejo|recorrente), reference_id, label, current_amount, cut_pct, estimated_savings, category|null, message}]}` (centavos). Cortes determinísticos: desejo 30%, recorrente 20% (decisão do Worker; Spec só exemplifica 30% — ajuste de constante se quiser variar). Possível sobreposição categoria×recorrente mantida sem dedupe (transparente). Verificação: build + 107/107 testes ✓. Branch apagada.
 - 3.3+3.4 DONE/mescladas (commit 9549c76, merge --no-ff). Telas `/consciencia` (top 3 transações, linha do tempo diária em barras CSS, comparativo mês a mês com setas semafóricas) e `/economia` (meta com barra+CRUD, orçamentos semafóricos 80/100 com CRUD, invisíveis, onde economizar). SEM reintroduzir Chart.js (barras CSS, consistente com dashboard). Usuário APROVOU as 3 decisões: Top 3 = transações; invisíveis na tela Economia; navegação reorganizada (bottom-nav mobile = Início·Transações·[+]·Consciência·Economia; Categorias virou ícone no cabeçalho; Perfil no avatar; desktop = …·Consciência·Economia·Categorias). Verificação: build + 107/107 ✓.
 - Stage 3 COMPLETO. Lacuna conhecida p/ depois: NÃO há tela de cadastro de recorrências ligada na navegação (endpoints CRUD existem da 3.1) — painel de "invisíveis" depende de transações marcadas `is_recurring`. Avaliar uma UI de recorrências (candidata a Stage futuro/roadmap 6.3 se o tempo apertar).
-- 4.1+4.2 despachadas em LOTE ao Backend (branch `feature/score-metas-investimentos`, sequencial no mesmo chat — candidatos a batch por Plan notes; 4.1 no caminho crítico). 4.1 = Score(40/30/30)+streak+job reset no scheduler+dicas+conteúdo educativo (usa `users.monthly_savings_goal` da 3.1); 4.2 = metas com propósito+simulador+prioridades+investimentos. Depois: UIs 4.3 (dep 4.1) + 4.4 (dep 4.2) em lote ao Frontend.
+- 4.1+4.2 DONE/mescladas (commit 002ed28). 4.1: `ScoreService` (40/30/30 com renormalização quando falta orçamento/meta; consistência=dias do mês), `StreakService`, job `RecalculateStreaks` no scheduler (`dailyAt 00:10`, fila no banco — confirmado em schedule:list), `TipsService`, seed de 5 conteúdos educativos. Endpoints `/api/score|streak|tips|educational-contents`. Migration aditiva `users.current_streak`. 4.2: CRUD metas (propósito mapeado em `description`; ordenação alta→media→baixa; sem migration nova), `SimulatorService` (`POST /api/goals/simulate`, ceil), CRUD investimentos com `total_invested`. Resources encapsulam em `data` (wrapping ATIVO — UIs devem ler `.data`). Decisões do Worker aceitas pelo Manager (alinhadas à Spec). Verificação: migrate + build + 145/145 testes ✓ (459 asserções) + scheduler ✓. PARA DEPLOY (6.1): cron único → `schedule:run` + `QUEUE_CONNECTION=database` (orientar usuário).
+- 4.3+4.4 despachadas em LOTE ao Frontend (branch `feature/ui-mentalidade-direcionamento`, sequencial). 4.3 = UI Mentalidade (Score, streak, dicas, conteúdos); 4.4 = UI Direcionamento (metas+progresso, simulador interativo, prioridades, investimentos). Contratos nos task-04-01/02.log.md. ATENÇÃO Frontend: respostas vêm em `data` (wrapping ativo). Validação visual guiada ao final.
 - Utilitário: `php artisan db:seed --class=TestDataSeeder` recria usuário de teste (teste@flowfin.com.br/senha1234, e-mail verificado) + dados (idempotente). Commitado em develop.
 - GIT LESSON (do not repeat): never delete/recreate a feature branch a Worker is using — a Worker commit (2.1, `5ddba2f`) was nearly lost by branch -D + recreate; recovered via the commit object. Manager edits planning docs on `develop` only; feature branches must not modify tracker/index (avoids merge conflicts via 3-way merge).
 
