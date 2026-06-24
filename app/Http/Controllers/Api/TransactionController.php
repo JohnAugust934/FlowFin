@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\IndexTransactionRequest;
 use App\Http\Requests\StoreTransactionRequest;
 use App\Http\Requests\UpdateTransactionRequest;
 use App\Http\Resources\TransactionResource;
@@ -26,14 +27,35 @@ use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
  */
 class TransactionController extends Controller
 {
-    public function index(Request $request): AnonymousResourceCollection
+    public function index(IndexTransactionRequest $request): AnonymousResourceCollection
     {
+        $filters = $request->validated();
+
         $transactions = $request->user()
             ->transactions()
             ->with('category')          // eager loading: evita N+1 ao exibir a categoria
+            // Filtros server-side (todos opcionais), aplicados sobre a query
+            // já escopada por usuário. A paginação reflete o total filtrado.
+            ->when(
+                $filters['date_from'] ?? null,
+                fn ($query, $dateFrom) => $query->whereDate('date', '>=', $dateFrom)
+            )
+            ->when(
+                $filters['date_to'] ?? null,
+                fn ($query, $dateTo) => $query->whereDate('date', '<=', $dateTo)
+            )
+            ->when(
+                $filters['category_id'] ?? null,
+                fn ($query, $categoryId) => $query->where('category_id', $categoryId)
+            )
+            ->when(
+                $filters['type'] ?? null,
+                fn ($query, $type) => $query->where('type', $type)
+            )
             ->latest('date')
             ->latest('id')
-            ->paginate(20);             // pagina em 20 itens por página
+            ->paginate(20)              // pagina em 20 itens por página
+            ->withQueryString();        // preserva os filtros nos links de paginação
 
         return TransactionResource::collection($transactions);
     }
