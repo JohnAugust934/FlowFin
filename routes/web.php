@@ -3,10 +3,15 @@
 use App\Http\Controllers\Api\BudgetController;
 use App\Http\Controllers\Api\CategoryController;
 use App\Http\Controllers\Api\DashboardController;
+use App\Http\Controllers\Api\EducationalContentController;
+use App\Http\Controllers\Api\GamificationController;
+use App\Http\Controllers\Api\GoalController;
 use App\Http\Controllers\Api\InsightsController;
+use App\Http\Controllers\Api\InvestmentController;
 use App\Http\Controllers\Api\RecurrenceController;
 use App\Http\Controllers\Api\SavingsGoalController;
 use App\Http\Controllers\Api\SavingsReportController;
+use App\Http\Controllers\Api\SimulatorController;
 use App\Http\Controllers\Api\TransactionController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
@@ -81,6 +86,29 @@ Route::middleware('auth')->prefix('api')->name('api.')->group(function () {
 
     // Relatório "Onde economizar" (sugestões determinísticas de corte de gastos).
     Route::get('/savings-report', [SavingsReportController::class, 'index'])->name('savings-report.index');
+
+    // Gamificação e direcionamento (Pilar 4 — Mentalidade): Score, streak e dicas.
+    Route::get('/score', [GamificationController::class, 'score'])->name('score');
+    Route::get('/streak', [GamificationController::class, 'streak'])->name('streak');
+    Route::get('/tips', [GamificationController::class, 'tips'])->name('tips');
+
+    // Conteúdos educativos do sistema (lista paginada, filtrável por tema).
+    Route::get('/educational-contents', [EducationalContentController::class, 'index'])->name('educational-contents.index');
+
+    // Metas com propósito (Pilar 5) + simulador + prioridades.
+    // A rota estática /simulate precede /{id} para não ser capturada por ela.
+    Route::post('/goals/simulate', [SimulatorController::class, 'simulate'])->name('goals.simulate');
+    Route::get('/goals', [GoalController::class, 'index'])->name('goals.index');
+    Route::post('/goals', [GoalController::class, 'store'])->name('goals.store');
+    Route::get('/goals/{id}', [GoalController::class, 'show'])->name('goals.show');
+    Route::put('/goals/{id}', [GoalController::class, 'update'])->name('goals.update');
+    Route::delete('/goals/{id}', [GoalController::class, 'destroy'])->name('goals.destroy');
+
+    // Investimentos (registro simplificado + total agregado).
+    Route::get('/investments', [InvestmentController::class, 'index'])->name('investments.index');
+    Route::post('/investments', [InvestmentController::class, 'store'])->name('investments.store');
+    Route::put('/investments/{id}', [InvestmentController::class, 'update'])->name('investments.update');
+    Route::delete('/investments/{id}', [InvestmentController::class, 'destroy'])->name('investments.destroy');
 });
 
 require __DIR__.'/auth.php';

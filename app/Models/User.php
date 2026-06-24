@@ -11,7 +11,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
-#[Fillable(['name', 'email', 'password', 'monthly_income', 'monthly_savings_goal'])]
+#[Fillable(['name', 'email', 'password', 'monthly_income', 'monthly_savings_goal', 'current_streak'])]
 #[Hidden(['password', 'remember_token'])]
 class User extends Authenticatable implements MustVerifyEmail
 {
@@ -32,6 +32,8 @@ class User extends Authenticatable implements MustVerifyEmail
             'monthly_income' => 'integer',
             // Meta de economia mensal em centavos (inteiro).
             'monthly_savings_goal' => 'integer',
+            // Sequência atual de dias consecutivos com registro.
+            'current_streak' => 'integer',
         ];
     }
 
