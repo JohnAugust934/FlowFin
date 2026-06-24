@@ -18,11 +18,14 @@
                     <x-nav-link :href="route('transactions.history')" :active="request()->routeIs('transactions.history')">
                         Transações
                     </x-nav-link>
+                    <x-nav-link :href="route('insights.consciencia')" :active="request()->routeIs('insights.consciencia')">
+                        Consciência
+                    </x-nav-link>
+                    <x-nav-link :href="route('savings.economia')" :active="request()->routeIs('savings.economia')">
+                        Economia
+                    </x-nav-link>
                     <x-nav-link :href="route('categories.manage')" :active="request()->routeIs('categories.manage')">
                         Categorias
-                    </x-nav-link>
-                    <x-nav-link href="#" :active="false">
-                        Metas
                     </x-nav-link>
                 </div>
             </div>

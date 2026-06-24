@@ -80,6 +80,47 @@ export const api = {
         return await request('GET', '/api/dashboard' + qs);
     },
 
+    // --- Consciência (insights) ---
+    /** Top 3 saídas, linha do tempo diária e comparativo mês a mês (valores em CENTAVOS). */
+    async getInsights(month = null) {
+        const qs = month ? `?month=${encodeURIComponent(month)}` : '';
+        return await request('GET', '/api/insights' + qs);
+    },
+    /** Gastos "invisíveis" (recorrências de saída, impacto mensal somado). */
+    async getInvisibleSpending() {
+        return await request('GET', '/api/insights/invisible');
+    },
+
+    // --- Economia (orçamentos, meta, relatório) ---
+    /** Status semafórico dos orçamentos do mês: [{id,category,monthly_limit,consumed,remaining,percentage,status}]. */
+    async getBudgetsStatus(month = null) {
+        const qs = month ? `?month=${encodeURIComponent(month)}` : '';
+        return await request('GET', '/api/budgets/status' + qs);
+    },
+    async createBudget(payload) {
+        return (await request('POST', '/api/budgets', payload)).data;
+    },
+    async updateBudget(id, payload) {
+        return (await request('PUT', `/api/budgets/${id}`, payload)).data;
+    },
+    async deleteBudget(id) {
+        return await request('DELETE', `/api/budgets/${id}`);
+    },
+    /** Meta de economia do mês: { month, goal, saved, progress_pct, achieved }. */
+    async getSavingsGoal(month = null) {
+        const qs = month ? `?month=${encodeURIComponent(month)}` : '';
+        return await request('GET', '/api/savings-goal' + qs);
+    },
+    /** Define/limpa a meta (centavos; null limpa). Corpo: { monthly_savings_goal }. */
+    async updateSavingsGoal(cents) {
+        return await request('PUT', '/api/savings-goal', { monthly_savings_goal: cents });
+    },
+    /** Relatório "onde economizar": { month, total_potential_savings, count, suggestions:[...] }. */
+    async getSavingsReport(month = null) {
+        const qs = month ? `?month=${encodeURIComponent(month)}` : '';
+        return await request('GET', '/api/savings-report' + qs);
+    },
+
     // --- Categorias ---
     async getCategories() {
         return (await request('GET', '/api/categories')).data;

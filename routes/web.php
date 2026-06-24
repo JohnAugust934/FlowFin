@@ -33,6 +33,10 @@ Route::middleware('auth')->group(function () {
     // Telas de transações e categorias (consomem a API JSON via JS no cliente).
     Route::view('/transacoes', 'transactions.history')->name('transactions.history');
     Route::view('/categorias', 'categories.manage')->name('categories.manage');
+
+    // Pilares de Consciência (insights do mês) e Economia (orçamentos, meta, cortes).
+    Route::view('/consciencia', 'insights.consciencia')->name('insights.consciencia');
+    Route::view('/economia', 'savings.economia')->name('savings.economia');
 });
 
 // API JSON autenticada por sessão (base para a UI e a sincronização offline do PWA).
