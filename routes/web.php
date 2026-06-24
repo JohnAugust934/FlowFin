@@ -1,7 +1,11 @@
 <?php
 
+use App\Http\Controllers\Api\BudgetController;
 use App\Http\Controllers\Api\CategoryController;
 use App\Http\Controllers\Api\DashboardController;
+use App\Http\Controllers\Api\InsightsController;
+use App\Http\Controllers\Api\RecurrenceController;
+use App\Http\Controllers\Api\SavingsGoalController;
 use App\Http\Controllers\Api\TransactionController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
@@ -45,6 +49,30 @@ Route::middleware('auth')->prefix('api')->name('api.')->group(function () {
 
     // Agregados do dashboard (entrou/saiu/sobrou, por categoria, % necessidade/desejo).
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+
+    // Recorrências / contas fixas (CRUD + projeção do mês).
+    // A rota estática /projection precede /{id} para não ser capturada por ela.
+    Route::get('/recurrences/projection', [RecurrenceController::class, 'projection'])->name('recurrences.projection');
+    Route::get('/recurrences', [RecurrenceController::class, 'index'])->name('recurrences.index');
+    Route::post('/recurrences', [RecurrenceController::class, 'store'])->name('recurrences.store');
+    Route::get('/recurrences/{id}', [RecurrenceController::class, 'show'])->name('recurrences.show');
+    Route::put('/recurrences/{id}', [RecurrenceController::class, 'update'])->name('recurrences.update');
+    Route::delete('/recurrences/{id}', [RecurrenceController::class, 'destroy'])->name('recurrences.destroy');
+
+    // Insights de consciência (top 3, linha do tempo diária, comparativo mês a mês) e gastos invisíveis.
+    Route::get('/insights/invisible', [InsightsController::class, 'invisible'])->name('insights.invisible');
+    Route::get('/insights', [InsightsController::class, 'index'])->name('insights.index');
+
+    // Orçamentos por categoria (CRUD + status semafórico).
+    Route::get('/budgets/status', [BudgetController::class, 'status'])->name('budgets.status');
+    Route::get('/budgets', [BudgetController::class, 'index'])->name('budgets.index');
+    Route::post('/budgets', [BudgetController::class, 'store'])->name('budgets.store');
+    Route::put('/budgets/{id}', [BudgetController::class, 'update'])->name('budgets.update');
+    Route::delete('/budgets/{id}', [BudgetController::class, 'destroy'])->name('budgets.destroy');
+
+    // Meta de economia mensal e progresso.
+    Route::get('/savings-goal', [SavingsGoalController::class, 'show'])->name('savings-goal.show');
+    Route::put('/savings-goal', [SavingsGoalController::class, 'update'])->name('savings-goal.update');
 });
 
 require __DIR__.'/auth.php';
