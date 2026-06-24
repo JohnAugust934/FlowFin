@@ -121,6 +121,62 @@ export const api = {
         return await request('GET', '/api/savings-report' + qs);
     },
 
+    // --- Mentalidade (Pilar 4): score, streak, dicas, conteúdos educativos) ---
+    /** Score FlowFin do mês: { month, score, factors:{consistency,budgets,savings_goal} }. */
+    async getScore(month = null) {
+        const qs = month ? `?month=${encodeURIComponent(month)}` : '';
+        return await request('GET', '/api/score' + qs);
+    },
+    /** Sequência de dias com registro: { current_streak, last_activity_date, active }. */
+    async getStreak() {
+        return await request('GET', '/api/streak');
+    },
+    /** Dicas contextuais (PT-BR): [ { code, level, title, message, theme } ]. */
+    async getTips(month = null) {
+        const qs = month ? `?month=${encodeURIComponent(month)}` : '';
+        return await request('GET', '/api/tips' + qs);
+    },
+    /** Mini-conteúdos educativos paginados: { data, links, meta }. Filtro opcional por tema. */
+    async getEducationalContents({ theme = '', page = 1 } = {}) {
+        const query = new URLSearchParams();
+        if (theme) query.append('theme', theme);
+        if (page) query.append('page', page);
+        const qs = query.toString();
+        return await request('GET', '/api/educational-contents' + (qs ? `?${qs}` : ''));
+    },
+
+    // --- Direcionamento (Pilar 5): metas, simulador, investimentos ---
+    /** Metas paginadas (ordenadas por prioridade/prazo): { data, links, meta }. */
+    async getGoals(page = 1) {
+        return await request('GET', '/api/goals' + (page ? `?page=${page}` : ''));
+    },
+    async createGoal(payload) {
+        return (await request('POST', '/api/goals', payload)).data;
+    },
+    async updateGoal(id, payload) {
+        return (await request('PUT', `/api/goals/${id}`, payload)).data;
+    },
+    async deleteGoal(id) {
+        return await request('DELETE', `/api/goals/${id}`);
+    },
+    /** Simulador: envie EXATAMENTE dois de {monthly_amount, target_amount, months} (centavos/meses). */
+    async simulateGoal(payload) {
+        return await request('POST', '/api/goals/simulate', payload);
+    },
+    /** Investimentos paginados + total agregado: { data, links, meta, total_invested }. */
+    async getInvestments(page = 1) {
+        return await request('GET', '/api/investments' + (page ? `?page=${page}` : ''));
+    },
+    async createInvestment(payload) {
+        return (await request('POST', '/api/investments', payload)).data;
+    },
+    async updateInvestment(id, payload) {
+        return (await request('PUT', `/api/investments/${id}`, payload)).data;
+    },
+    async deleteInvestment(id) {
+        return await request('DELETE', `/api/investments/${id}`);
+    },
+
     // --- Categorias ---
     async getCategories() {
         return (await request('GET', '/api/categories')).data;

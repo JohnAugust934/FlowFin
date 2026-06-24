@@ -24,6 +24,12 @@
                     <x-nav-link :href="route('savings.economia')" :active="request()->routeIs('savings.economia')">
                         Economia
                     </x-nav-link>
+                    <x-nav-link :href="route('mindset.mentalidade')" :active="request()->routeIs('mindset.mentalidade')">
+                        Mentalidade
+                    </x-nav-link>
+                    <x-nav-link :href="route('goals.direcionamento')" :active="request()->routeIs('goals.direcionamento')">
+                        Direcionamento
+                    </x-nav-link>
                     <x-nav-link :href="route('categories.manage')" :active="request()->routeIs('categories.manage')">
                         Categorias
                     </x-nav-link>
