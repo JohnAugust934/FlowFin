@@ -30,3 +30,20 @@ Coordenação: 1.1 despachada sozinha (fundação); 1.2 e 1.3 em paralelo via wo
 - task-01-03.log.md
 - task-01-04.log.md
 
+### Stage 2 - Núcleo Financeiro (MVP)
+
+O MVP utilizável foi entregue e validado de ponta a ponta pelo usuário (registrar → dashboard → histórico). **Backend (2.1, 2.2, 2.6):** endpoints JSON autenticados por sessão para CRUD de transações e categorias (valor em centavos, soft delete, escopo por usuário, `Accept: application/json` + CSRF nas escritas); serviço de agregados mensais `GET /api/dashboard?month=aaaa-mm` → `{totals{entrou,saiu,sobrou}, by_category[], needs_vs_wants{...}}` (tudo centavos) com cache em arquivo por usuário/mês invalidado por `TransactionObserver` (`#[ObservedBy]` no model Transaction — preservar); e filtros server-side (`date_from/date_to/category_id/type`) no `GET /api/transactions` mantendo paginação 20/página e eager loading. **Frontend (2.3, 2.4, 2.5, 2.7):** registro rápido (≤3 toques) via bottom-sheet global (`open-quick-add`), ponto de escrita central `api.persistTransaction` (alvo de interceptação offline da 5.2), eventos `transaction-saved`/`edit-transaction`; dashboard do mês; histórico com filtros/paginação e editar/excluir; utils JS em `resources/js/flowfin/` (api, R$↔centavos, ícones Heroicons, componentes Alpine).
+
+A Task 2.6 foi criada pelo Manager a partir de um achado da 2.5 (a UI já enviava filtros que o `index` ignorava). A Task 2.7 nasceu da verificação holística + pedidos do usuário e passou por 4 rodadas de refino visual guiado: linguagem glassmorphism/iOS 26, **tema claro/escuro/sistema** (`darkMode:'class'` + persistência localStorage + script inline no `<head>` sem flash), correção da navegação de categorias no `bottom-nav` mobile (o slot "Metas" era placeholder morto), histórico arejado e ícone da marca (`x-brand-icon`) no topo. Decisão de design relevante: o **gráfico de rosca (Chart.js) do dashboard foi substituído** por um **ranking de categorias com barras de proporção** (e o bloco "Necessidade vs. desejo" foi harmonizado no mesmo padrão) — a Spec previa "rosca", mas o usuário aprovou explicitamente a troca de forma por clareza/beleza no mobile; Chart.js saiu do bundle (~90→21 KB gzip), continuando listado em `package.json` para limpeza futura opcional.
+
+Coordenação: 2.1→2.2 (caminho crítico Backend) em sequência; UIs 2.3/2.5 em paralelo; 2.4 e 2.6 despachadas em paralelo via worktrees e mescladas juntas; 2.7 sequencial na pasta principal. Verificação holística de fim de Stage em `develop`: `npm run build` ✓ + suíte completa **69/69 testes ✓ (222 asserções)**. Validação visual guiada feita com `TestDataSeeder` (usuário `teste@flowfin.com.br`/`senha1234`, e-mail verificado) para contornar o gate de verificação de e-mail. Findings para depois: página de Perfil e dropdown de usuário no desktop ainda sem tema escuro (Perfil cai na Task 5.4; dropdown é ajuste curto opcional); componentes compartilhados (`.card`, `toast`, `transaction-form`) ficaram translúcidos/cientes de tema — as UIs dos Stages 3/4 herdam esse tratamento ao reusá-los.
+
+**Task Logs:**
+- task-02-01.log.md
+- task-02-02.log.md
+- task-02-03.log.md
+- task-02-04.log.md
+- task-02-05.log.md
+- task-02-06.log.md
+- task-02-07.log.md
+
