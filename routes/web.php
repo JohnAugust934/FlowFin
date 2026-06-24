@@ -6,6 +6,7 @@ use App\Http\Controllers\Api\DashboardController;
 use App\Http\Controllers\Api\InsightsController;
 use App\Http\Controllers\Api\RecurrenceController;
 use App\Http\Controllers\Api\SavingsGoalController;
+use App\Http\Controllers\Api\SavingsReportController;
 use App\Http\Controllers\Api\TransactionController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
@@ -73,6 +74,9 @@ Route::middleware('auth')->prefix('api')->name('api.')->group(function () {
     // Meta de economia mensal e progresso.
     Route::get('/savings-goal', [SavingsGoalController::class, 'show'])->name('savings-goal.show');
     Route::put('/savings-goal', [SavingsGoalController::class, 'update'])->name('savings-goal.update');
+
+    // Relatório "Onde economizar" (sugestões determinísticas de corte de gastos).
+    Route::get('/savings-report', [SavingsReportController::class, 'index'])->name('savings-report.index');
 });
 
 require __DIR__.'/auth.php';
