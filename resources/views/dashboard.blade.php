@@ -136,28 +136,42 @@
                 {{-- Necessidade vs. Desejo --}}
                 <x-card title="Necessidade vs. desejo" subtitle="Proporção das saídas classificadas">
                     <template x-if="hasClassification">
-                        <div class="space-y-3">
-                            {{-- Barra de proporção --}}
-                            <div class="flex w-full h-4 rounded-full overflow-hidden bg-neutral-200/70 dark:bg-neutral-700/60">
-                                <div class="bg-brand-600 h-full transition-all duration-500" :style="`width: ${needsVsWants.necessidade_pct}%`"></div>
-                                <div class="bg-emerald-500 h-full transition-all duration-500" :style="`width: ${needsVsWants.desejo_pct}%`"></div>
+                        <div class="space-y-4">
+                            {{-- Barra de visão geral (composição empilhada) --}}
+                            <div class="flex w-full h-2.5 rounded-full overflow-hidden bg-neutral-200/70 dark:bg-neutral-700/50">
+                                <template x-for="row in needsVsWantsBreakdown" :key="row.key">
+                                    <div class="h-full first:rounded-l-full last:rounded-r-full transition-all duration-500"
+                                         :style="`width: ${row.pct}%; background-color: ${row.color}`"
+                                         :title="`${row.name}: ${row.pctLabel}`"></div>
+                                </template>
                             </div>
-                            <div class="flex items-center justify-between text-sm">
-                                <div class="flex items-center gap-2">
-                                    <span class="w-3 h-3 rounded-full bg-brand-600"></span>
-                                    <span class="text-neutral-700 dark:text-neutral-300">Necessidade</span>
-                                    <span class="font-semibold text-neutral-800 dark:text-neutral-100" x-text="needsVsWants.necessidade_pct + '%'"></span>
-                                    <span class="text-neutral-400 dark:text-neutral-500" x-text="'(' + money(needsVsWants.necessidade) + ')'"></span>
-                                </div>
-                            </div>
-                            <div class="flex items-center justify-between text-sm">
-                                <div class="flex items-center gap-2">
-                                    <span class="w-3 h-3 rounded-full bg-emerald-500"></span>
-                                    <span class="text-neutral-700 dark:text-neutral-300">Desejo</span>
-                                    <span class="font-semibold text-neutral-800 dark:text-neutral-100" x-text="needsVsWants.desejo_pct + '%'"></span>
-                                    <span class="text-neutral-400 dark:text-neutral-500" x-text="'(' + money(needsVsWants.desejo) + ')'"></span>
-                                </div>
-                            </div>
+
+                            {{-- Linhas no mesmo padrão do ranking de categorias --}}
+                            <ul class="space-y-3">
+                                <template x-for="row in needsVsWantsBreakdown" :key="row.key">
+                                    <li>
+                                        <div class="flex items-center gap-3">
+                                            <span class="flex items-center justify-center w-9 h-9 rounded-xl shrink-0"
+                                                  :style="`background-color: ${row.color}1F; color: ${row.color}`"
+                                                  x-html="categoryIcon(row.icon)"></span>
+                                            <div class="min-w-0 flex-1">
+                                                <div class="flex items-baseline justify-between gap-2">
+                                                    <span class="font-medium text-[15px] text-neutral-800 dark:text-neutral-100 truncate" x-text="row.name"></span>
+                                                    <span class="font-bold text-neutral-800 dark:text-neutral-100 whitespace-nowrap" x-text="row.moneyLabel"></span>
+                                                </div>
+                                                <div class="mt-1.5 flex items-center gap-2">
+                                                    <div class="flex-1 h-1.5 rounded-full overflow-hidden bg-neutral-200/60 dark:bg-neutral-700/40">
+                                                        <div class="h-full rounded-full transition-all duration-500"
+                                                             :style="`width: ${row.pct}%; background-color: ${row.color}`"></div>
+                                                    </div>
+                                                    <span class="text-xs font-medium text-neutral-400 dark:text-neutral-500 w-9 text-right" x-text="row.pctLabel"></span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </li>
+                                </template>
+                            </ul>
+
                             {{-- Nota de saídas sem classificação --}}
                             <template x-if="needsVsWants.sem_classificacao > 0">
                                 <p class="text-xs text-neutral-400 dark:text-neutral-500 pt-1">

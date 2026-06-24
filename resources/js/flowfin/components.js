@@ -491,6 +491,33 @@ document.addEventListener('alpine:init', () => {
             const n = this.needsVsWants;
             return (n.necessidade + n.desejo) > 0;
         },
+        // Necessidade vs. desejo como linhas de ranking (mesma linguagem visual do
+        // ranking de categorias): ícone+cor, valor em R$, % e barra de proporção.
+        get needsVsWantsBreakdown() {
+            const n = this.needsVsWants;
+            return [
+                {
+                    key: 'necessidade',
+                    name: 'Necessidade',
+                    icon: 'home',
+                    color: '#2563EB', // brand-600
+                    total: n.necessidade,
+                    moneyLabel: centsToBRL(n.necessidade),
+                    pct: n.necessidade_pct,
+                    pctLabel: n.necessidade_pct + '%',
+                },
+                {
+                    key: 'desejo',
+                    name: 'Desejo',
+                    icon: 'sparkles',
+                    color: '#10B981', // emerald-500
+                    total: n.desejo,
+                    moneyLabel: centsToBRL(n.desejo),
+                    pct: n.desejo_pct,
+                    pctLabel: n.desejo_pct + '%',
+                },
+            ];
+        },
         // Soma das saídas do mês (centavos) e rótulo formatado.
         get totalSaidas() {
             return this.byCategory.reduce((sum, c) => sum + c.total, 0);
