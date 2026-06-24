@@ -427,7 +427,6 @@ document.addEventListener('alpine:init', () => {
         error: null,
         month: null,        // "aaaa-mm" de referência
         data: null,         // payload do endpoint
-        chart: null,        // instância Chart.js (rosca)
 
         // Paleta de fallback p/ categorias sem cor definida (tons da marca/semáforo).
         palette: ['#2563EB', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6', '#06B6D4', '#EC4899', '#84CC16', '#6B7280'],
@@ -437,8 +436,6 @@ document.addEventListener('alpine:init', () => {
             await this.load();
             // Recarrega quando uma transação é criada/editada em qualquer lugar do app.
             window.addEventListener('transaction-saved', () => this.load());
-            // Redesenha o gráfico com as cores do tema ao alternar claro/escuro.
-            window.addEventListener('theme-changed', () => this.renderChart());
         },
 
         async load() {
@@ -447,7 +444,6 @@ document.addEventListener('alpine:init', () => {
             try {
                 this.data = await api.getDashboard(this.month);
                 this.month = this.data.month; // normalizado pelo servidor
-                this.$nextTick(() => this.renderChart());
             } catch (e) {
                 this.error = e.message;
                 toast('error', e.message);
@@ -495,9 +491,26 @@ document.addEventListener('alpine:init', () => {
             const n = this.needsVsWants;
             return (n.necessidade + n.desejo) > 0;
         },
-        // Total de saídas exibido no centro da rosca.
+        // Soma das saídas do mês (centavos) e rótulo formatado.
+        get totalSaidas() {
+            return this.byCategory.reduce((sum, c) => sum + c.total, 0);
+        },
         get totalSaidasLabel() {
-            return centsToBRL(this.byCategory.reduce((sum, c) => sum + c.total, 0));
+            return centsToBRL(this.totalSaidas);
+        },
+        // Ranking de categorias com cor resolvida, valor em R$ e % do total de saídas.
+        get categoryBreakdown() {
+            const total = this.totalSaidas || 1;
+            return this.byCategory.map((c, i) => ({
+                id: c.category_id,
+                name: c.name,
+                icon: c.icon,
+                color: this.colorFor(i, c.color),
+                total: c.total,
+                moneyLabel: centsToBRL(c.total),
+                pct: (c.total / total) * 100,
+                pctLabel: Math.round((c.total / total) * 100) + '%',
+            }));
         },
 
         money(cents) {
@@ -506,78 +519,8 @@ document.addEventListener('alpine:init', () => {
         colorFor(index, color) {
             return color || this.palette[index % this.palette.length];
         },
-
-        // --- Gráfico de rosca ---
-        renderChart() {
-            const canvas = this.$refs.chartCanvas;
-            if (!canvas) return;
-
-            if (this.chart) {
-                this.chart.destroy();
-                this.chart = null;
-            }
-            if (!this.hasCategoryData) return;
-
-            const labels = this.byCategory.map((c) => c.name);
-            const values = this.byCategory.map((c) => c.total); // centavos
-            const colors = this.byCategory.map((c, i) => this.colorFor(i, c.color));
-
-            // Cores do gráfico cientes do tema. As fatias usam "spacing" (gap) em vez de
-            // borda, deixando o fundo do cartão aparecer entre elas — acabamento mais limpo.
-            const isDark = document.documentElement.classList.contains('dark');
-            const legendColor = isDark ? '#D1D5DB' : '#4B5563';
-
-            this.chart = new window.Chart(canvas, {
-                type: 'doughnut',
-                data: {
-                    labels,
-                    datasets: [{
-                        data: values,
-                        backgroundColor: colors,
-                        borderWidth: 0,
-                        borderRadius: 8,       // pontas arredondadas das fatias
-                        spacing: 3,            // respiro entre as fatias
-                        hoverOffset: 8,
-                    }],
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    cutout: '74%',             // anel mais fino e elegante
-                    radius: '92%',
-                    layout: { padding: 4 },
-                    animation: { duration: 350 },
-                    plugins: {
-                        legend: {
-                            position: 'bottom',
-                            labels: {
-                                color: legendColor,
-                                font: { family: 'Inter', size: 12 },
-                                padding: 16,
-                                usePointStyle: true,
-                                pointStyle: 'circle',
-                                boxWidth: 8,
-                                boxHeight: 8,
-                            },
-                        },
-                        tooltip: {
-                            backgroundColor: isDark ? 'rgba(17,24,39,0.92)' : 'rgba(255,255,255,0.96)',
-                            titleColor: isDark ? '#F3F4F6' : '#111827',
-                            bodyColor: isDark ? '#E5E7EB' : '#374151',
-                            borderColor: isDark ? 'rgba(255,255,255,0.12)' : 'rgba(0,0,0,0.08)',
-                            borderWidth: 1,
-                            padding: 10,
-                            cornerRadius: 10,
-                            usePointStyle: true,
-                            bodyFont: { family: 'Inter' },
-                            titleFont: { family: 'Inter', weight: '600' },
-                            callbacks: {
-                                label: (ctx) => ` ${ctx.label}: ${centsToBRL(ctx.parsed)}`,
-                            },
-                        },
-                    },
-                },
-            });
+        categoryIcon(icon) {
+            return iconSvg(icon, 'w-5 h-5');
         },
     }));
 });

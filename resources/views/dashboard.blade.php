@@ -77,16 +77,52 @@
                     </div>
                 </div>
 
-                {{-- Gráfico de rosca por categoria --}}
+                {{-- Para onde foi o dinheiro: ranking de categorias com barras de proporção --}}
                 <x-card title="Para onde foi o dinheiro" subtitle="Saídas por categoria no mês">
                     {{-- Com dados --}}
-                    <div x-show="hasCategoryData" class="relative h-72">
-                        <canvas x-ref="chartCanvas"></canvas>
-                        {{-- Total no centro da rosca --}}
-                        <div class="pointer-events-none absolute inset-x-0 top-[42%] -translate-y-1/2 text-center px-4">
-                            <p class="text-[11px] uppercase tracking-wide text-neutral-400 dark:text-neutral-500">Total de saídas</p>
-                            <p class="text-xl font-extrabold tracking-tight text-neutral-800 dark:text-neutral-100" x-text="totalSaidasLabel"></p>
+                    <div x-show="hasCategoryData" class="space-y-4">
+                        {{-- Total + barra de visão geral (composição das saídas) --}}
+                        <div>
+                            <div class="flex items-baseline justify-between">
+                                <span class="text-[11px] uppercase tracking-wide text-neutral-400 dark:text-neutral-500">Total de saídas</span>
+                                <span class="text-lg font-extrabold tracking-tight text-neutral-800 dark:text-neutral-100" x-text="totalSaidasLabel"></span>
+                            </div>
+                            <div class="mt-2 flex w-full h-2.5 rounded-full overflow-hidden bg-neutral-200/70 dark:bg-neutral-700/50">
+                                <template x-for="cat in categoryBreakdown" :key="cat.id">
+                                    <div class="h-full first:rounded-l-full last:rounded-r-full transition-all duration-500"
+                                         :style="`width: ${cat.pct}%; background-color: ${cat.color}`"
+                                         :title="`${cat.name}: ${cat.pctLabel}`"></div>
+                                </template>
+                            </div>
                         </div>
+
+                        {{-- Ranking de categorias --}}
+                        <ul class="space-y-3">
+                            <template x-for="cat in categoryBreakdown" :key="cat.id">
+                                <li>
+                                    <div class="flex items-center gap-3">
+                                        {{-- Ícone/cor da categoria --}}
+                                        <span class="flex items-center justify-center w-9 h-9 rounded-xl shrink-0"
+                                              :style="`background-color: ${cat.color}1F; color: ${cat.color}`"
+                                              x-html="categoryIcon(cat.icon)"></span>
+                                        <div class="min-w-0 flex-1">
+                                            <div class="flex items-baseline justify-between gap-2">
+                                                <span class="font-medium text-[15px] text-neutral-800 dark:text-neutral-100 truncate" x-text="cat.name"></span>
+                                                <span class="font-bold text-neutral-800 dark:text-neutral-100 whitespace-nowrap" x-text="cat.moneyLabel"></span>
+                                            </div>
+                                            {{-- Barra de proporção da categoria --}}
+                                            <div class="mt-1.5 flex items-center gap-2">
+                                                <div class="flex-1 h-1.5 rounded-full overflow-hidden bg-neutral-200/60 dark:bg-neutral-700/40">
+                                                    <div class="h-full rounded-full transition-all duration-500"
+                                                         :style="`width: ${cat.pct}%; background-color: ${cat.color}`"></div>
+                                                </div>
+                                                <span class="text-xs font-medium text-neutral-400 dark:text-neutral-500 w-9 text-right" x-text="cat.pctLabel"></span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </li>
+                            </template>
+                        </ul>
                     </div>
                     {{-- Estado vazio --}}
                     <div x-show="!hasCategoryData" class="text-center py-10">

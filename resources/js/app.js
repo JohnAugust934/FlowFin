@@ -1,5 +1,4 @@
 import Alpine from 'alpinejs';
-import Chart from 'chart.js/auto';
 
 // Componentes Alpine do FlowFin (registram-se em alpine:init).
 import './flowfin/components.js';
@@ -11,6 +10,5 @@ import { iconSvg } from './flowfin/icons.js';
 window.FlowFin = { api, format, iconSvg };
 
 window.Alpine = Alpine;
-window.Chart = Chart;
 
 Alpine.start();
