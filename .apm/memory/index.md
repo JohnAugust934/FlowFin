@@ -87,3 +87,14 @@ Dois defeitos achados na validação real e corrigidos: (1) **registrar offline 
 - task-05-03-followup.log.md
 - task-05-04-ui-export-lgpd-perfil.log.md
 - task-05-05.log.md
+
+### Stage 6 - Deploy & Documentação
+
+Stage final entregue: a infraestrutura de produção e toda a documentação leiga. Tudo informado pelo **deploy de teste real** que o usuário já fez na Hostinger (subdomínio + SSH + SSL). **6.1 (config de produção):** `.env.production.example`, `public/.htaccess` ampliado de forma aditiva (`<IfModule>`) com Gzip + cache de assets + no-cache do Service Worker/manifest, e `docs/01-configuracao-producao.md` documentando `.env` de produção (APP_ENV/DEBUG, SESSION/QUEUE=database, CACHE=file, DB MySQL, MAIL_* SMTP), o **cron único** (`* * * * * … php artisan schedule:run`, que dispara a fila no banco e o job RecalculateStreaks 00:10), SSL, document root → `public` e o build do Vite. **6.2 (guia de deploy):** `docs/02-guia-deploy.md` passo a passo do push à publicação via GitFlow/`main`, com seção de atualização e tabela de armadilhas reais (HTTPS obrigatório p/ PWA; `storage:link` falha por `exec()` desabilitada → pular; build de `public/build` gerado localmente e enviado pois Node não é confiável no shared; document root → `public`; `pdo_mysql`), + `docs/README.md` índice. **6.3 (guia de uso + roadmap):** `docs/03-guia-uso-roadmap.md` cobrindo as funcionalidades dos Stages 1–5 e o roadmap do diferido (login Google, passkeys, import CSV, multi-moeda, Open Finance) + a lacuna conhecida (tela de recorrências não ligada à navegação).
+
+Coordenação: lote único ao DevOps & Docs Agent (6.1→6.2→6.3) numa branch (docs/config aditivos, sem tocar Vite/PHP; suíte não reexecutada por ser doc). **6.2 fica Partial até a validação guiada final** = o usuário publicar de fato em produção seguindo o guia (deploy real ainda não executado). **Ações do usuário pendentes para a produção:** criar banco MySQL, ativar SSL (Let's Encrypt), criar caixa SMTP, criar o cron único, e dar push em `main` — o Manager pausa e orienta cada uma quando o usuário quiser publicar.
+
+**Task Logs:**
+- task-06-01.log.md
+- task-06-02.log.md
+- task-06-03.log.md

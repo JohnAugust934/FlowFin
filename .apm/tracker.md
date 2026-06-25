@@ -48,19 +48,19 @@ title: FlowFin
 | 5.4 | Done (merged) | frontend-agent | feature/ui-export-lgpd-perfil |
 | 5.5 | Done (merged) | backend-agent | feature/export-lgpd-hardening |
 
-**Stage 6:** In Progress
+**Stage 6:** Complete (docs/config entregues; deploy de produção real = ação do usuário pendente)
 
 | Task | Status | Agent | Branch |
 |------|--------|-------|--------|
-| 6.1 | Dispatched | devops-docs-agent | feature/deploy-docs |
-| 6.2 | Dispatched | devops-docs-agent | feature/deploy-docs |
-| 6.3 | Dispatched | devops-docs-agent | feature/deploy-docs |
+| 6.1 | Done (merged) | devops-docs-agent | feature/deploy-docs |
+| 6.2 | Done docs (merged); validação = usuário publicar em produção | devops-docs-agent | feature/deploy-docs |
+| 6.3 | Done (merged) | devops-docs-agent | feature/deploy-docs |
 
 ## Worker Tracking
 
 | Agent | Instance | Notes |
 |-------|----------|-------|
-| devops-docs-agent | 1 | Initialized; completed Task 1.1 (next work in Stage 6) |
+| devops-docs-agent | 1 | Completed 1.1, 6.1, 6.2, 6.3 |
 | backend-agent | 1 | Completed 1.3, 1.4, 2.1, 2.2, 2.6, 3.1, 3.2, 4.1, 4.2, 5.3, 5.5 (+idempotência) |
 | frontend-agent | 1 | Completed 1.2, 2.3, 2.4, 2.5, 2.7, 3.3, 3.4, 5.1, 5.2, 5.4 (+ícones PNG, fix offline) |
 
