@@ -1,11 +1,8 @@
 <section>
     <header>
-        <h2 class="text-lg font-medium text-gray-900">
-            {{ __('Profile Information') }}
-        </h2>
-
-        <p class="mt-1 text-sm text-gray-600">
-            {{ __("Update your account's profile information and email address.") }}
+        <h2 class="text-base font-semibold text-neutral-800 dark:text-neutral-100">Dados pessoais</h2>
+        <p class="mt-1 text-sm text-neutral-500 dark:text-neutral-400">
+            Atualize seu nome, e-mail e a sua renda mensal estimada.
         </p>
     </header>
 
@@ -13,34 +10,38 @@
         @csrf
     </form>
 
-    <form method="post" action="{{ route('profile.update') }}" class="mt-6 space-y-6">
+    <form method="post" action="{{ route('profile.update') }}" class="mt-6 space-y-5">
         @csrf
         @method('patch')
 
         <div>
-            <x-input-label for="name" :value="__('Name')" />
-            <x-text-input id="name" name="name" type="text" class="mt-1 block w-full" :value="old('name', $user->name)" required autofocus autocomplete="name" />
+            <label for="name" class="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-1">Nome</label>
+            <input id="name" name="name" type="text" required autofocus autocomplete="name"
+                   value="{{ old('name', $user->name) }}"
+                   class="block w-full border-neutral-300 rounded-lg focus:border-brand-500 focus:ring-brand-500">
             <x-input-error class="mt-2" :messages="$errors->get('name')" />
         </div>
 
         <div>
-            <x-input-label for="email" :value="__('Email')" />
-            <x-text-input id="email" name="email" type="email" class="mt-1 block w-full" :value="old('email', $user->email)" required autocomplete="username" />
+            <label for="email" class="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-1">E-mail</label>
+            <input id="email" name="email" type="email" required autocomplete="username"
+                   value="{{ old('email', $user->email) }}"
+                   class="block w-full border-neutral-300 rounded-lg focus:border-brand-500 focus:ring-brand-500">
             <x-input-error class="mt-2" :messages="$errors->get('email')" />
 
             @if ($user instanceof \Illuminate\Contracts\Auth\MustVerifyEmail && ! $user->hasVerifiedEmail())
                 <div>
-                    <p class="text-sm mt-2 text-gray-800">
-                        {{ __('Your email address is unverified.') }}
+                    <p class="text-sm mt-2 text-neutral-700 dark:text-neutral-300">
+                        Seu e-mail ainda não foi confirmado.
 
-                        <button form="send-verification" class="underline text-sm text-gray-600 hover:text-gray-900 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
-                            {{ __('Click here to re-send the verification email.') }}
+                        <button form="send-verification" class="underline text-sm text-brand-600 hover:text-brand-700 dark:text-brand-300 rounded-md focus:outline-none focus:ring-2 focus:ring-brand-500">
+                            Clique aqui para reenviar o e-mail de confirmação.
                         </button>
                     </p>
 
                     @if (session('status') === 'verification-link-sent')
-                        <p class="mt-2 font-medium text-sm text-green-600">
-                            {{ __('A new verification link has been sent to your email address.') }}
+                        <p class="mt-2 font-medium text-sm text-success">
+                            Um novo link de confirmação foi enviado para o seu e-mail.
                         </p>
                     @endif
                 </div>
@@ -48,26 +49,20 @@
         </div>
 
         <div>
-            <x-input-label for="monthly_income" :value="__('Estimated monthly income')" />
+            <label for="monthly_income" class="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-1">Renda mensal estimada</label>
             <div class="relative mt-1">
-                <span class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3 text-sm text-neutral-500">R$</span>
-                <x-text-input
-                    id="monthly_income"
-                    name="monthly_income"
-                    type="text"
-                    inputmode="decimal"
-                    class="block w-full pl-9"
-                    placeholder="0,00"
-                    :value="old('monthly_income') !== null ? \App\Support\Money::format((int) old('monthly_income')) : \App\Support\Money::format($user->monthly_income)"
-                    autocomplete="off"
-                />
+                <span class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3 text-sm text-neutral-500 dark:text-neutral-400">R$</span>
+                <input id="monthly_income" name="monthly_income" type="text" inputmode="decimal" autocomplete="off"
+                       placeholder="0,00"
+                       value="{{ old('monthly_income') !== null ? \App\Support\Money::format((int) old('monthly_income')) : \App\Support\Money::format($user->monthly_income) }}"
+                       class="block w-full pl-9 border-neutral-300 rounded-lg focus:border-brand-500 focus:ring-brand-500">
             </div>
-            <p class="mt-1 text-xs text-neutral-500">{{ __('Used to personalize your summaries. Optional.') }}</p>
+            <p class="mt-1 text-xs text-neutral-500 dark:text-neutral-400">Usada para personalizar seus resumos. Opcional.</p>
             <x-input-error class="mt-2" :messages="$errors->get('monthly_income')" />
         </div>
 
         <div class="flex items-center gap-4">
-            <x-primary-button>{{ __('Save') }}</x-primary-button>
+            <button type="submit" class="btn-primary">Salvar</button>
         </div>
     </form>
 </section>

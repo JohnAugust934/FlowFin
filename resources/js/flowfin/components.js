@@ -1523,6 +1523,49 @@ document.addEventListener('alpine:init', () => {
     }));
 
     // ------------------------------------------------------------------
+    // Perfil — Exportação de relatórios (CSV/PDF) e dos dados (LGPD).
+    // Downloads não passam bem por fetch JSON: disparamos navegação direta
+    // para a rota (a sessão já autentica) via um <a> temporário, que aciona
+    // o download do navegador sem sair da página.
+    // ------------------------------------------------------------------
+    Alpine.data('exportData', () => ({
+        month: currentMonth(),
+        format: 'csv',
+        downloading: false,
+        downloadingFull: false,
+
+        get maxMonth() {
+            return currentMonth();
+        },
+
+        downloadMonthly() {
+            if (!this.month) return;
+            this.downloading = true;
+            const url = `/api/export/monthly?month=${encodeURIComponent(this.month)}&format=${encodeURIComponent(this.format)}`;
+            this._trigger(url);
+            toast('success', 'Preparando seu relatório… o download começa em instantes.');
+            // Sem evento confiável de "download concluído"; libera o botão após um breve intervalo.
+            setTimeout(() => { this.downloading = false; }, 1500);
+        },
+
+        downloadFull() {
+            this.downloadingFull = true;
+            this._trigger('/api/export/full');
+            toast('success', 'Preparando o arquivo com seus dados… o download começa em instantes.');
+            setTimeout(() => { this.downloadingFull = false; }, 1500);
+        },
+
+        _trigger(url) {
+            const a = document.createElement('a');
+            a.href = url;
+            a.rel = 'noopener';
+            document.body.appendChild(a);
+            a.click();
+            a.remove();
+        },
+    }));
+
+    // ------------------------------------------------------------------
     // Prompt de instalação do PWA (Task 5.1). Aparece quando o navegador
     // sinaliza que o app é instalável; o usuário pode instalar ou dispensar
     // (a dispensa é lembrada para não insistir).
@@ -1552,6 +1595,48 @@ document.addEventListener('alpine:init', () => {
         dismiss() {
             this.dismissed = true;
             localStorage.setItem('pwa-install-dismissed', '1');
+        },
+    }));
+
+    // ------------------------------------------------------------------
+    // Perfil — Exclusão definitiva da conta (LGPD). Reautentica por senha
+    // via DELETE /api/account; 422 = senha incorreta (mensagem clara).
+    // ------------------------------------------------------------------
+    Alpine.data('accountDeletion', () => ({
+        open: false,
+        password: '',
+        deleting: false,
+        error: '',
+
+        init() {
+            this.$watch('open', (v) => {
+                if (v) this.$nextTick(() => this.$refs.pwd?.focus());
+            });
+        },
+
+        close() {
+            if (this.deleting) return;
+            this.open = false;
+            this.password = '';
+            this.error = '';
+        },
+
+        async confirm() {
+            if (!this.password) return;
+            this.deleting = true;
+            this.error = '';
+            try {
+                await api.deleteAccount(this.password);
+                toast('success', 'Conta excluída. Até logo.');
+                window.location.href = '/';
+            } catch (e) {
+                if (e instanceof ApiError && e.status === 422) {
+                    this.error = e.errors?.password?.[0] || 'Senha incorreta. Tente de novo.';
+                } else {
+                    this.error = e.message;
+                }
+                this.deleting = false;
+            }
         },
     }));
 });
