@@ -177,6 +177,15 @@ export const api = {
         return await request('DELETE', `/api/investments/${id}`);
     },
 
+    // --- Conta (LGPD) ---
+    /**
+     * Exclusão definitiva da conta e dos dados pessoais (purge físico no servidor).
+     * Reautentica por senha; 422 quando a senha não confere.
+     */
+    async deleteAccount(password) {
+        return await request('DELETE', '/api/account', { password });
+    },
+
     // --- Categorias ---
     async getCategories() {
         return (await request('GET', '/api/categories')).data;
