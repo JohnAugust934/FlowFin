@@ -2,6 +2,7 @@
 // Registrados em `alpine:init` para estarem disponíveis antes do Alpine.start().
 
 import { api, ApiError } from './api.js';
+import { offlineQueue } from './offline-queue.js';
 import { centsToBRL, centsToBRLNumber, brlToCents, maskCurrency, formatDateBR, todayISO } from './format.js';
 import { iconSvg } from './icons.js';
 
@@ -181,10 +182,16 @@ document.addEventListener('alpine:init', () => {
 
             this.saving = true;
             try {
-                // Ponto único de escrita (interceptável pela sincronização offline futura).
+                // Ponto único de escrita: intercepta a sincronização offline.
                 const tx = await api.persistTransaction(payload, this.editingId);
-                toast('success', this.editingId ? 'Transação atualizada ✓' : 'Transação registrada ✓');
-                window.dispatchEvent(new CustomEvent('transaction-saved', { detail: tx }));
+                if (tx && tx._pending) {
+                    // Sem conexão: guardado na fila offline (sincroniza ao reconectar).
+                    toast('warning', 'Sem internet — guardamos e vamos sincronizar quando a conexão voltar.');
+                    window.dispatchEvent(new CustomEvent('transaction-queued', { detail: tx }));
+                } else {
+                    toast('success', this.editingId ? 'Transação atualizada ✓' : 'Transação registrada ✓');
+                    window.dispatchEvent(new CustomEvent('transaction-saved', { detail: tx }));
+                }
                 this.close();
             } catch (e) {
                 if (e instanceof ApiError && e.status === 422) {
@@ -1413,6 +1420,89 @@ document.addEventListener('alpine:init', () => {
             } catch (e) {
                 toast('error', e.message);
             }
+        },
+    }));
+
+    // ------------------------------------------------------------------
+    // Indicador global de conexão/sincronização (Task 5.2). Mostra estado
+    // offline e a quantidade de transações pendentes; sincroniza ao reconectar
+    // e avisa o usuário quando tudo foi sincronizado. Sem poluição visual:
+    // só aparece quando há algo a comunicar.
+    // ------------------------------------------------------------------
+    Alpine.data('offlineSync', () => ({
+        online: navigator.onLine,
+        pending: 0,
+        syncing: false,
+
+        async init() {
+            try { this.pending = await offlineQueue.pendingCount(); } catch (e) { /* IndexedDB indisponível */ }
+
+            window.addEventListener('online', () => { this.online = true; });
+            window.addEventListener('offline', () => { this.online = false; });
+            window.addEventListener('flowfin:queue-changed', (e) => { this.pending = e.detail?.count ?? this.pending; });
+            window.addEventListener('flowfin:sync-start', () => { this.syncing = true; });
+            window.addEventListener('flowfin:sync-complete', (e) => {
+                this.syncing = false;
+                const n = e.detail?.synced ?? 0;
+                if (n > 0) toast('success', n === 1 ? 'Transação sincronizada ✓' : `${n} transações sincronizadas ✓`);
+            });
+            window.addEventListener('flowfin:tx-failed', () => {
+                toast('error', 'Uma transação offline não pôde ser salva. Confira os dados e registre de novo.');
+            });
+        },
+
+        get visible() {
+            return !this.online || this.pending > 0 || this.syncing;
+        },
+        get tone() {
+            // Âmbar quando offline/pendente; azul enquanto sincroniza.
+            if (this.syncing) return 'sync';
+            return this.online ? 'pending' : 'offline';
+        },
+        get label() {
+            if (this.syncing) return 'Sincronizando…';
+            if (this.pending > 0) return this.pending === 1 ? '1 transação pendente' : `${this.pending} transações pendentes`;
+            if (!this.online) return 'Você está offline';
+            return '';
+        },
+        get canSyncNow() {
+            return this.online && this.pending > 0 && !this.syncing;
+        },
+        syncNow() {
+            offlineQueue.flush();
+        },
+    }));
+
+    // ------------------------------------------------------------------
+    // Prompt de instalação do PWA (Task 5.1). Aparece quando o navegador
+    // sinaliza que o app é instalável; o usuário pode instalar ou dispensar
+    // (a dispensa é lembrada para não insistir).
+    // ------------------------------------------------------------------
+    Alpine.data('pwaInstall', () => ({
+        available: false,
+        dismissed: false,
+
+        init() {
+            this.dismissed = localStorage.getItem('pwa-install-dismissed') === '1';
+            window.addEventListener('flowfin:pwa-installable', (e) => {
+                this.available = !!e.detail?.available;
+            });
+            window.addEventListener('flowfin:pwa-installed', () => {
+                this.available = false;
+                toast('success', 'FlowFin instalado ✓');
+            });
+        },
+
+        get visible() {
+            return this.available && !this.dismissed;
+        },
+        async install() {
+            const outcome = await window.FlowFin.pwa.promptInstall();
+            if (outcome === 'dismissed') this.dismiss();
+        },
+        dismiss() {
+            this.dismissed = true;
+            localStorage.setItem('pwa-install-dismissed', '1');
         },
     }));
 });

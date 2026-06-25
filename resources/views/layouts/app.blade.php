@@ -5,6 +5,15 @@
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <meta name="csrf-token" content="{{ csrf_token() }}">
 
+        {{-- PWA: app instalável + cor da barra do sistema --}}
+        <link rel="manifest" href="{{ asset('manifest.webmanifest') }}">
+        <meta name="theme-color" content="#2563EB">
+        <meta name="mobile-web-app-capable" content="yes">
+        <meta name="apple-mobile-web-app-capable" content="yes">
+        <meta name="apple-mobile-web-app-status-bar-style" content="default">
+        <meta name="apple-mobile-web-app-title" content="FlowFin">
+        <link rel="apple-touch-icon" href="{{ asset('img/pwa/app-icon.svg') }}">
+
         <title>{{ config('app.name', 'FlowFin') }}</title>
 
         {{-- Aplica o tema (claro/escuro/sistema) antes da pintura para evitar flash. --}}
@@ -144,6 +153,12 @@
 
         <!-- Container de toasts (feedback visual imediato) -->
         <x-toast />
+
+        <!-- Estado de conexão/sincronização offline + convite para instalar o app -->
+        @auth
+            <x-offline-indicator />
+        @endauth
+        <x-pwa-install />
 
         @stack('scripts')
     </body>
