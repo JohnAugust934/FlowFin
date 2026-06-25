@@ -12,7 +12,7 @@
             <div>
                 <label for="export_month" class="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-1">Mês do relatório</label>
                 <input id="export_month" type="month" x-model="month" :max="maxMonth"
-                       class="block w-full border-neutral-300 rounded-lg focus:border-brand-500 focus:ring-brand-500">
+                       class="block w-full rounded-lg bg-white text-neutral-900 border-neutral-300 focus:border-brand-500 focus:ring-brand-500 dark:bg-neutral-800 dark:text-neutral-100 dark:border-neutral-600 dark:[color-scheme:dark]">
             </div>
             <div>
                 <span class="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-1">Formato</span>
