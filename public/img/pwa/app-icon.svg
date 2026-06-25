@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#2563EB"/>
+      <stop offset="100%" stop-color="#1E3A8A"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Fundo full-bleed (compatível com ícones "maskable": o SO recorta nas bordas). -->
+  <rect x="0" y="0" width="512" height="512" fill="url(#bg)"/>
+
+  <!-- Marca FlowFin centralizada na zona segura (central ~60%), traços em branco. -->
+  <g transform="translate(106,106) scale(2.5)" fill="none" stroke="#FFFFFF"
+     stroke-width="15" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M 15 65 C 35 65, 50 30, 70 30 C 80 30, 90 35, 100 45"/>
+    <path d="M 25 90 C 45 90, 60 55, 85 55 L 100 55" opacity="0.85"/>
+    <polyline points="80,35 100,55 80,75" opacity="0.85"/>
+  </g>
+</svg>
