@@ -56,6 +56,14 @@ title: FlowFin
 | 6.2 | Done docs (merged); validação = usuário publicar em produção | devops-docs-agent | feature/deploy-docs |
 | 6.3 | Done (merged) | devops-docs-agent | feature/deploy-docs |
 
+**Stage 7:** In Progress (extensão pós-MVP solicitada pelo usuário 25/06)
+
+| Task | Status | Agent | Branch |
+|------|--------|-------|--------|
+| 7.1 | Dispatched | frontend-agent | feature/landing-page |
+| 7.2 | Dispatched | devops-docs-agent | feature/readme |
+| (features futuras) | Aguardando priorização do usuário | — | — |
+
 ## Worker Tracking
 
 | Agent | Instance | Notes |
@@ -98,6 +106,8 @@ title: FlowFin
 - Stage 4 COMPLETO. PARA DEPLOY (6.1): cron único → `php artisan schedule:run` + `QUEUE_CONNECTION=database` ativam o reset diário de streak (job RecalculateStreaks 00:10) — orientar usuário.
 - GITHUB: usuário pediu (24/06, fim do dia) para PUBLICAR no remoto `https://github.com/JohnAugust934/FlowFin` AGORA (antes da Task 6.2). Autorização explícita e durável p/ push. Ver Working Notes de VC se push exigiu auth do usuário.
 - Utilitário: `php artisan db:seed --class=TestDataSeeder` recria usuário de teste (teste@flowfin.com.br/senha1234, e-mail verificado) + dados (idempotente). Commitado em develop.
+- **EXTENSÃO PÓS-MVP (usuário, 25/06):** Stages 1–6 entregues, mas o usuário decidiu NÃO encerrar — quer adicionar: (a) tela de apresentação/landing [7.1 despachada], (b) README [7.2 despachada], (c) `main` como branch default no GitHub, (d) entregar as features do roadmap diferido (login Google, passkeys, import CSV, multi-moeda, Open Finance) + lacuna recorrências. Priorização das features pedida ao usuário (Stage 8+ a planejar). Prazo 02/07.
+- **MAIN/release PENDENTE (ação do usuário):** merge `develop`→`main` + push bloqueado pelo classificador (release de produção). Delegado ao usuário rodar `! git checkout main && git merge --no-ff develop && git push origin main && git checkout develop`; depois definir `main` como default no GitHub (UI). main local ainda em cb152b5 (não mesclada).
 - GITHUB push CONFIRMADO concluído (Manager 3, 25/06): `origin/develop`=8318d05 e `main`=cb152b5 sincronizados em `https://github.com/JohnAugust934/FlowFin`. Pendência herdada do handoff 2→3 resolvida.
 - Stage 5 DESPACHADO (Manager 3) em 2 frentes paralelas via worktrees: Frontend lote **5.1+5.2** (`feature/pwa-offline`); Backend lote **5.3+5.5** (`feature/export-lgpd-hardening`). 5.2 = requisito inegociável zero-perda-de-dados + validação guiada. Verificação holística de fim de Stage 5 prevista (offline→online real + performance).
 - **5.3+5.5+idempotência MESCLADOS em develop** (commit merge 3f84a85; branch/worktree removidos). Verificado: composer install (DomPDF), migrate, build, **160/160 testes (518 asserções)**. Endpoints novos (UI 5.4 consome): `GET /api/export/monthly?month=&format=csv|pdf`, `GET /api/export/full` (JSON centavos), `DELETE /api/account` (body `{password}`, reautenticação, **purge físico** LGPD). `POST /api/transactions` aceita `client_uuid` opcional → reenvio do mesmo (mesmo user) devolve a existente (200), unique composto `(user_id, client_uuid)`. Logs do Stage 5 ficaram no repo principal (Workers gravaram via caminho absoluto) — commitados em develop pelo Manager.
