@@ -59,3 +59,15 @@ Decisões de produto aprovadas pelo usuário: (1) "Top 3 maiores gastos" = as 3 
 - task-03-03.log.md
 - task-03-04.log.md
 
+### Stage 4 - Mentalidade & Direcionamento
+
+Os pilares 4 (Mentalidade) e 5 (Direcionamento) foram entregues e validados visualmente. **Backend (4.1, 4.2):** a Task 4.1 implementou a gamificação — `ScoreService` (Score FlowFin 0–100 = consistência 40% + orçamentos 30% + meta 30%, com **renormalização** dos pesos quando falta orçamento/meta; consistência = dias do mês com registro ÷ dias de calendário), `StreakService` (dias consecutivos), job `RecalculateStreaks` registrado no **scheduler** (`dailyAt 00:10`, fila no banco — sem Redis) que materializa o reset, `TipsService` (dicas contextuais determinísticas por nível alerta/positivo/educativo) e seed de 5 mini-conteúdos educativos; endpoints `GET /api/score|streak|tips|educational-contents`; migration aditiva `users.current_streak`. A Task 4.2 entregou metas com propósito (mapeado em `description`), prazo e prioridade (CRUD + ordenação alta→media→baixa + progresso), simulador determinístico (`POST /api/goals/simulate`: meses/alvo/mensal, `ceil`) e investimentos (CRUD + `total_invested`). **Importante:** os endpoints com Resource encapsulam em `data` (wrapping ativo). **Frontend (4.3, 4.4):** telas `/mentalidade` (Score em anel SVG, streak 🔥, dicas, conteúdos) e `/direcionamento` (prioridades, metas com progresso, simulador ao vivo, investimentos), mantendo a linguagem visual sem Chart.js.
+
+O **cabeçalho global (app shell) foi redesenhado** em 3 rodadas de refino guiado pelo usuário (insatisfação com o visual "amador"): desktop em 3 zonas (marca · navegação em pills com indicador de ativo · ações tema/+/avatar) com Categorias movida ao menu do avatar; mobile com topo enxuto (marca + avatar + ≡) e um painel translúcido no ≡ (Mentalidade/Direcionamento/Categorias/tema/perfil/sair). Correções de legibilidade: superfícies mais opacas (90–95%) e, decisivo, o scrim do menu ≡ subiu para 60%+blur e foi **recortado abaixo da barra** (`top-14` em vez de `inset-0`) — antes o overlay escurecia a própria barra, deixando os ícones apagados (a causa real do efeito amador). Esse redesenho beneficia todas as telas. Coordenação: Backend batch 4.1→4.2 (caminho crítico); UIs 4.3+4.4 em lote ao Frontend; depois 3 follow-ups visuais sequenciais no mesmo chat/branch. Verificação a cada merge: `npm run build` ✓ + suíte completa **145/145 (459 asserções)** ✓ + job confirmado em `schedule:list`. **Para o deploy (Task 6.1):** o reset de streak depende do cron único (`schedule:run`) + fila no banco — orientar o usuário.
+
+**Task Logs:**
+- task-04-01.log.md
+- task-04-02.log.md
+- task-04-03.log.md (inclui os 3 follow-ups de cabeçalho)
+- task-04-04.log.md
+

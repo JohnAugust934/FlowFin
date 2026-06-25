@@ -29,14 +29,14 @@ title: FlowFin
 | 3.3 | Done | frontend-agent | |
 | 3.4 | Done | frontend-agent | |
 
-**Stage 4:**
+**Stage 4:** Complete
 
 | Task | Status | Agent | Branch |
 |------|--------|-------|--------|
 | 4.1 | Done | backend-agent | |
 | 4.2 | Done | backend-agent | |
-| 4.3 | Active | frontend-agent | feature/ui-mentalidade-direcionamento |
-| 4.4 | Active | frontend-agent | feature/ui-mentalidade-direcionamento |
+| 4.3 | Done | frontend-agent | |
+| 4.4 | Done | frontend-agent | |
 
 ## Worker Tracking
 
@@ -75,7 +75,10 @@ title: FlowFin
 - 3.3+3.4 DONE/mescladas (commit 9549c76, merge --no-ff). Telas `/consciencia` (top 3 transações, linha do tempo diária em barras CSS, comparativo mês a mês com setas semafóricas) e `/economia` (meta com barra+CRUD, orçamentos semafóricos 80/100 com CRUD, invisíveis, onde economizar). SEM reintroduzir Chart.js (barras CSS, consistente com dashboard). Usuário APROVOU as 3 decisões: Top 3 = transações; invisíveis na tela Economia; navegação reorganizada (bottom-nav mobile = Início·Transações·[+]·Consciência·Economia; Categorias virou ícone no cabeçalho; Perfil no avatar; desktop = …·Consciência·Economia·Categorias). Verificação: build + 107/107 ✓.
 - Stage 3 COMPLETO. Lacuna conhecida p/ depois: NÃO há tela de cadastro de recorrências ligada na navegação (endpoints CRUD existem da 3.1) — painel de "invisíveis" depende de transações marcadas `is_recurring`. Avaliar uma UI de recorrências (candidata a Stage futuro/roadmap 6.3 se o tempo apertar).
 - 4.1+4.2 DONE/mescladas (commit 002ed28). 4.1: `ScoreService` (40/30/30 com renormalização quando falta orçamento/meta; consistência=dias do mês), `StreakService`, job `RecalculateStreaks` no scheduler (`dailyAt 00:10`, fila no banco — confirmado em schedule:list), `TipsService`, seed de 5 conteúdos educativos. Endpoints `/api/score|streak|tips|educational-contents`. Migration aditiva `users.current_streak`. 4.2: CRUD metas (propósito mapeado em `description`; ordenação alta→media→baixa; sem migration nova), `SimulatorService` (`POST /api/goals/simulate`, ceil), CRUD investimentos com `total_invested`. Resources encapsulam em `data` (wrapping ATIVO — UIs devem ler `.data`). Decisões do Worker aceitas pelo Manager (alinhadas à Spec). Verificação: migrate + build + 145/145 testes ✓ (459 asserções) + scheduler ✓. PARA DEPLOY (6.1): cron único → `schedule:run` + `QUEUE_CONNECTION=database` (orientar usuário).
-- 4.3+4.4 despachadas em LOTE ao Frontend (branch `feature/ui-mentalidade-direcionamento`, sequencial). 4.3 = UI Mentalidade (Score, streak, dicas, conteúdos); 4.4 = UI Direcionamento (metas+progresso, simulador interativo, prioridades, investimentos). Contratos nos task-04-01/02.log.md. ATENÇÃO Frontend: respostas vêm em `data` (wrapping ativo). Validação visual guiada ao final.
+- 4.3+4.4 DONE/mescladas (commit de merge em develop). Telas `/mentalidade` (Score em anel SVG + 3 fatores, streak 🔥, dicas por nível, conteúdos paginados) e `/direcionamento` (resumo prioridades, metas com propósito+progresso+CRUD, simulador ao vivo, investimentos+total+CRUD). SEM Chart.js. Decisões do usuário aceitas: pilares 4/5 acessíveis (desktop = barra superior; mobile = menu ≡ no cabeçalho com Mentalidade/Direcionamento/Categorias+tema+perfil/sair); Categorias saiu da barra → menu avatar (desktop)/painel ≡ (mobile). Filtro de temas cresce ao navegar; resumo de prioridades conta a página atual (20). 
+- Cabeçalho (app shell) REDESENHADO em 3 follow-ups guiados pelo usuário: (1) redesenho profissional desktop (3 zonas: marca/nav pills com ativo/ações) + mobile (topo enxuto + painel ≡); (2) superfícies mais opacas (vidro vazava); (3) FIX no menu ≡ mobile: scrim 40%→60% + blur, e overlay recortado `top-14` (antes `inset-0` escurecia a própria barra deixando ícones apagados — efeito amador). Aprovado. Beneficia TODAS as telas (global). Verificação: build + 145/145 ✓.
+- Stage 4 COMPLETO. PARA DEPLOY (6.1): cron único → `php artisan schedule:run` + `QUEUE_CONNECTION=database` ativam o reset diário de streak (job RecalculateStreaks 00:10) — orientar usuário.
+- GITHUB: usuário pediu (24/06, fim do dia) para PUBLICAR no remoto `https://github.com/JohnAugust934/FlowFin` AGORA (antes da Task 6.2). Autorização explícita e durável p/ push. Ver Working Notes de VC se push exigiu auth do usuário.
 - Utilitário: `php artisan db:seed --class=TestDataSeeder` recria usuário de teste (teste@flowfin.com.br/senha1234, e-mail verificado) + dados (idempotente). Commitado em develop.
 - GIT LESSON (do not repeat): never delete/recreate a feature branch a Worker is using — a Worker commit (2.1, `5ddba2f`) was nearly lost by branch -D + recreate; recovered via the commit object. Manager edits planning docs on `develop` only; feature branches must not modify tracker/index (avoids merge conflicts via 3-way merge).
 
