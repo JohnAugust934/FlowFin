@@ -5,6 +5,17 @@
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <meta name="csrf-token" content="{{ csrf_token() }}">
 
+        {{-- PWA: app instalável + cor da barra do sistema --}}
+        <link rel="manifest" href="{{ asset('manifest.webmanifest') }}">
+        <meta name="theme-color" content="#2563EB">
+        <meta name="mobile-web-app-capable" content="yes">
+        <meta name="apple-mobile-web-app-capable" content="yes">
+        <meta name="apple-mobile-web-app-status-bar-style" content="default">
+        <meta name="apple-mobile-web-app-title" content="FlowFin">
+        <link rel="apple-touch-icon" sizes="180x180" href="{{ asset('img/pwa/app-icon-180.png') }}">
+        <link rel="icon" type="image/png" sizes="192x192" href="{{ asset('img/pwa/app-icon-192.png') }}">
+        <link rel="icon" type="image/svg+xml" href="{{ asset('img/pwa/app-icon.svg') }}">
+
         <title>{{ config('app.name', 'FlowFin') }}</title>
 
         {{-- Aplica o tema (claro/escuro/sistema) antes da pintura para evitar flash. --}}
@@ -129,7 +140,7 @@
             @endisset
 
             <!-- Conteúdo. Padding inferior no mobile para não cobrir com a barra inferior. -->
-            <main class="pb-24 sm:pb-8">
+            <main class="pb-28 sm:pb-8">
                 {{ $slot }}
             </main>
 
@@ -144,6 +155,12 @@
 
         <!-- Container de toasts (feedback visual imediato) -->
         <x-toast />
+
+        <!-- Estado de conexão/sincronização offline + convite para instalar o app -->
+        @auth
+            <x-offline-indicator />
+        @endauth
+        <x-pwa-install />
 
         @stack('scripts')
     </body>

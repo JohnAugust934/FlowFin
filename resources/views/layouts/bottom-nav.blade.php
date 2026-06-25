@@ -9,7 +9,7 @@
     $idle = 'text-neutral-400 hover:text-neutral-600 dark:text-neutral-500 dark:hover:text-neutral-300';
 @endphp
 
-<nav class="sm:hidden fixed bottom-0 inset-x-0 z-40 bg-white/75 dark:bg-neutral-900/70 backdrop-blur-xl border-t border-white/40 dark:border-white/10 pb-[env(safe-area-inset-bottom)]"
+<nav class="sm:hidden fixed bottom-0 inset-x-0 z-40 bg-white/75 dark:bg-neutral-900/70 backdrop-blur-xl border-t border-white/40 dark:border-white/10 pb-[calc(env(safe-area-inset-bottom)+0.75rem)]"
      aria-label="Navegação principal">
     <div class="flex items-stretch justify-around max-w-md mx-auto px-2 relative">
         {{-- Início --}}

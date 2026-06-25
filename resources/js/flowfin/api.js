@@ -10,6 +10,8 @@
 //  - Escritas (POST/PUT/DELETE) enviam o token CSRF (meta `csrf-token`).
 //  - `amount` trafega em CENTAVOS (inteiro).
 
+import { offlineQueue } from './offline-queue.js';
+
 /** Erro de API com status e (quando 422) os erros por campo. */
 export class ApiError extends Error {
     constructor(message, status, errors = {}) {
@@ -66,6 +68,17 @@ async function request(method, url, body = null) {
     }
 
     return data;
+}
+
+/**
+ * Escrita de transação DIRETA NA REDE (sem interceptação offline).
+ * Usada tanto pelo caminho online quanto pela fila ao sincronizar.
+ */
+async function persistTransactionNetwork(payload, id = null) {
+    if (id) {
+        return (await request('PUT', `/api/transactions/${id}`, payload)).data;
+    }
+    return (await request('POST', '/api/transactions', payload)).data;
 }
 
 export const api = {
@@ -216,9 +229,24 @@ export const api = {
      * @param {number|null} id  quando informado, atualiza (PUT); senão cria (POST).
      */
     async persistTransaction(payload, id = null) {
-        if (id) {
-            return (await request('PUT', `/api/transactions/${id}`, payload)).data;
+        const op = id ? 'update' : 'create';
+
+        // Sem conexão detectada: enfileira já (não tenta a rede à toa).
+        if (!navigator.onLine) {
+            return offlineQueue.enqueue({ op, id, payload });
         }
-        return (await request('POST', '/api/transactions', payload)).data;
+
+        try {
+            return await persistTransactionNetwork(payload, id);
+        } catch (e) {
+            // Caiu a rede no meio do envio (status 0): preserva na fila offline.
+            if (e instanceof ApiError && e.status === 0) {
+                return offlineQueue.enqueue({ op, id, payload });
+            }
+            throw e; // 422 e demais erros seguem para a UI tratar normalmente.
+        }
     },
 };
+
+// Liga a sincronização da fila ao ponto de escrita de rede (evita import circular).
+offlineQueue.configure(persistTransactionNetwork);
