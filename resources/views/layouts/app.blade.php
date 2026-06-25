@@ -32,7 +32,7 @@
                 $mMenuActive = 'bg-brand-50 text-brand-700 dark:bg-brand-500/15 dark:text-brand-200';
                 $mMenuIdle = 'text-neutral-700 hover:bg-neutral-100/80 dark:text-neutral-200 dark:hover:bg-white/5';
             @endphp
-            <header class="sm:hidden sticky top-0 z-30 bg-white/70 dark:bg-neutral-900/70 backdrop-blur-xl border-b border-white/40 dark:border-white/10">
+            <header class="sm:hidden sticky top-0 z-30 bg-white/90 dark:bg-neutral-900/90 backdrop-blur-xl border-b border-neutral-200/70 dark:border-white/10 shadow-sm shadow-neutral-900/5">
                 <div class="flex items-center justify-between h-14 px-4">
                     <a href="{{ route('dashboard') }}" class="flex items-center gap-2" aria-label="FlowFin — início">
                         <x-brand-icon class="h-8 w-8" />
@@ -58,7 +58,7 @@
 
                             {{-- Overlay --}}
                             <div x-show="open" x-transition.opacity @click="open = false"
-                                 class="fixed inset-0 z-40 bg-neutral-900/20 dark:bg-black/40" style="display:none;"></div>
+                                 class="fixed inset-0 z-40 bg-neutral-900/40 dark:bg-black/60 backdrop-blur-sm" style="display:none;"></div>
 
                             {{-- Painel de vidro --}}
                             <div x-show="open"
@@ -68,7 +68,7 @@
                                  x-transition:leave="transition ease-in duration-100"
                                  x-transition:leave-start="opacity-100 translate-y-0 scale-100"
                                  x-transition:leave-end="opacity-0 -translate-y-2 scale-95"
-                                 class="glass absolute right-4 top-[3.75rem] z-50 w-64 origin-top-right p-2"
+                                 class="glass absolute right-4 top-[3.75rem] z-50 w-64 origin-top-right p-2 bg-white/95 dark:bg-neutral-900/95 shadow-xl shadow-neutral-900/15"
                                  style="display:none;">
                                 <p class="px-3 pt-1 pb-2 text-[11px] font-semibold uppercase tracking-wide text-neutral-400 dark:text-neutral-500">Explorar</p>
 

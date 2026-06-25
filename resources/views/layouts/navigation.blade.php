@@ -14,7 +14,7 @@
     $navIdle = 'text-neutral-600 hover:text-neutral-900 hover:bg-neutral-100/80 dark:text-neutral-300 dark:hover:text-white dark:hover:bg-white/5';
 @endphp
 
-<nav class="hidden sm:block sticky top-0 z-30 bg-white/70 dark:bg-neutral-900/65 backdrop-blur-xl border-b border-white/40 dark:border-white/10 shadow-glass dark:shadow-glass-dark">
+<nav class="hidden sm:block sticky top-0 z-30 bg-white/90 dark:bg-neutral-900/90 backdrop-blur-xl border-b border-neutral-200/70 dark:border-white/10 shadow-md shadow-neutral-900/5 dark:shadow-glass-dark">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="flex items-center justify-between h-16 gap-4">
             {{-- Marca --}}
@@ -53,7 +53,7 @@
                         <span class="hidden md:inline">Nova transação</span>
                     </button>
 
-                    <x-dropdown align="right" width="w-56" contentClasses="py-1 bg-white/90 dark:bg-neutral-800/95 backdrop-blur-xl border border-white/50 dark:border-white/10">
+                    <x-dropdown align="right" width="w-56" contentClasses="py-1 bg-white/95 dark:bg-neutral-800/98 backdrop-blur-xl border border-neutral-200/70 dark:border-white/10 shadow-lg">
                         <x-slot name="trigger">
                             <button type="button"
                                     class="flex items-center gap-2 rounded-full p-0.5 pr-2 text-sm font-medium text-neutral-600 dark:text-neutral-200 hover:bg-neutral-100/80 dark:hover:bg-white/5 transition focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/50"
