@@ -7,7 +7,9 @@ use App\Http\Controllers\Api\EducationalContentController;
 use App\Http\Controllers\Api\GamificationController;
 use App\Http\Controllers\Api\GoalController;
 use App\Http\Controllers\Api\InsightsController;
+use App\Http\Controllers\Api\AccountController;
 use App\Http\Controllers\Api\InvestmentController;
+use App\Http\Controllers\Api\ReportExportController;
 use App\Http\Controllers\Api\RecurrenceController;
 use App\Http\Controllers\Api\SavingsGoalController;
 use App\Http\Controllers\Api\SavingsReportController;
@@ -113,6 +115,13 @@ Route::middleware('auth')->prefix('api')->name('api.')->group(function () {
     Route::post('/investments', [InvestmentController::class, 'store'])->name('investments.store');
     Route::put('/investments/{id}', [InvestmentController::class, 'update'])->name('investments.update');
     Route::delete('/investments/{id}', [InvestmentController::class, 'destroy'])->name('investments.destroy');
+
+    // Export de relatório mensal (CSV/PDF) e export completo dos dados (LGPD).
+    Route::get('/export/monthly', [ReportExportController::class, 'monthly'])->name('export.monthly');
+    Route::get('/export/full', [ReportExportController::class, 'full'])->name('export.full');
+
+    // Exclusão definitiva da conta e dos dados pessoais (LGPD — purge físico).
+    Route::delete('/account', [AccountController::class, 'destroy'])->name('account.destroy');
 });
 
 require __DIR__.'/auth.php';
