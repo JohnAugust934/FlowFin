@@ -18,7 +18,7 @@
  * relevante neste arquivo. Bump manual ao alterar a casca/estratégia.
  */
 
-const CACHE_VERSION = 'v1';
+const CACHE_VERSION = 'v2';
 const SHELL_CACHE = `flowfin-shell-${CACHE_VERSION}`;
 const ASSET_CACHE = `flowfin-assets-${CACHE_VERSION}`;
 const OFFLINE_URL = '/offline.html';
@@ -28,6 +28,8 @@ const PRECACHE_URLS = [
     OFFLINE_URL,
     '/manifest.webmanifest',
     '/img/pwa/app-icon.svg',
+    '/img/pwa/app-icon-192.png',
+    '/img/pwa/app-icon-512.png',
     '/img/brand/icon_flowfin.svg',
 ];
 
