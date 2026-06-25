@@ -38,18 +38,14 @@ title: FlowFin
 | 4.3 | Done | frontend-agent | |
 | 4.4 | Done | frontend-agent | |
 
-**Stage 5:** In Progress
+**Stage 5:** Complete
 
 | Task | Status | Agent | Branch |
 |------|--------|-------|--------|
-| 5.1 | Offline APROVADO; aguarda validar barra inferior | frontend-agent | feature/pwa-offline |
-| 5.1+ | Done (ícones PNG iPhone — na branch) | frontend-agent | feature/pwa-offline |
-| 5.2 | Offline APROVADO pelo usuário (funcionou no celular) | frontend-agent | feature/pwa-offline |
-| 5.2+ | Done (fix categorias offline — na branch, aceito) | frontend-agent | feature/pwa-offline |
-| 5.2++ | Done (fix barra inferior safe-area iOS — Manager, na branch) | frontend-agent | feature/pwa-offline |
+| 5.1 | Done (merged) | frontend-agent | feature/pwa-offline |
+| 5.2 | Done (merged) | frontend-agent | feature/pwa-offline |
 | 5.3 | Done (merged) | backend-agent | feature/export-lgpd-hardening |
-| 5.3+ | Done (merged — idempotência client_uuid) | backend-agent | feature/export-lgpd-hardening |
-| 5.4 | Reviewed-Success (aguarda validação guiada) | frontend-agent | feature/ui-export-lgpd-perfil |
+| 5.4 | Done (merged) | frontend-agent | feature/ui-export-lgpd-perfil |
 | 5.5 | Done (merged) | backend-agent | feature/export-lgpd-hardening |
 
 ## Worker Tracking
@@ -57,8 +53,8 @@ title: FlowFin
 | Agent | Instance | Notes |
 |-------|----------|-------|
 | devops-docs-agent | 1 | Initialized; completed Task 1.1 (next work in Stage 6) |
-| backend-agent | 1 | Completed 1.3, 1.4, 2.1, 2.2, 2.6, 3.1, 3.2, 4.1, 4.2 |
-| frontend-agent | 1 | Completed 1.2, 2.3, 2.4, 2.5, 2.7, 3.3, 3.4 |
+| backend-agent | 1 | Completed 1.3, 1.4, 2.1, 2.2, 2.6, 3.1, 3.2, 4.1, 4.2, 5.3, 5.5 (+idempotência) |
+| frontend-agent | 1 | Completed 1.2, 2.3, 2.4, 2.5, 2.7, 3.3, 3.4, 5.1, 5.2, 5.4 (+ícones PNG, fix offline) |
 
 ## Version Control
 
