@@ -16,12 +16,56 @@ function currentMonth() {
     return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
 }
 
-// Cache simples de categorias por sessão de página (evita refetch desnecessário).
+// Cache de categorias em DUAS camadas:
+//  - em memória (variável de módulo): evita refetch durante a sessão de página;
+//  - persistente (localStorage): sobrevive a reload/abertura OFFLINE, para que o
+//    seletor de categorias do formulário funcione sem rede (a lista é pequena e
+//    não paginada). Sem isso, abrir o app em modo avião deixava a lista vazia e
+//    o botão Salvar desabilitado — impedindo registrar transação offline.
+const CATEGORIES_STORAGE_KEY = 'flowfin:categories';
 let categoriesCache = null;
+
+function readPersistedCategories() {
+    try {
+        const raw = localStorage.getItem(CATEGORIES_STORAGE_KEY);
+        const list = raw ? JSON.parse(raw) : null;
+        return Array.isArray(list) && list.length ? list : null;
+    } catch (e) {
+        return null;
+    }
+}
+
+function writePersistedCategories(list) {
+    try {
+        if (Array.isArray(list)) localStorage.setItem(CATEGORIES_STORAGE_KEY, JSON.stringify(list));
+    } catch (e) {
+        /* armazenamento indisponível/cheio: segue só com o cache em memória */
+    }
+}
+
+// Falha de rede = offline (ApiError status 0) ou navegador sabidamente offline.
+function isOfflineError(e) {
+    return !navigator.onLine || (e instanceof ApiError && e.status === 0);
+}
+
 async function loadCategories(force = false) {
     if (categoriesCache && !force) return categoriesCache;
-    categoriesCache = await api.getCategories();
-    return categoriesCache;
+    try {
+        const list = await api.getCategories();
+        categoriesCache = list;
+        writePersistedCategories(list); // atualiza o cache persistente quando online
+        return list;
+    } catch (e) {
+        // Offline: usa a última lista cacheada em vez de cair em erro/lista vazia.
+        if (isOfflineError(e)) {
+            const persisted = readPersistedCategories();
+            if (persisted) {
+                categoriesCache = persisted;
+                return persisted;
+            }
+        }
+        throw e;
+    }
 }
 function invalidateCategories() {
     categoriesCache = null;
@@ -127,7 +171,12 @@ document.addEventListener('alpine:init', () => {
             try {
                 this.categories = await loadCategories();
             } catch (e) {
-                toast('error', e.message);
+                // Offline e sem cache (nunca abriu o app online antes): orienta o usuário.
+                if (isOfflineError(e)) {
+                    toast('error', 'Conecte-se uma vez para carregar suas categorias.');
+                } else {
+                    toast('error', e.message);
+                }
             } finally {
                 this.loadingCategories = false;
             }
