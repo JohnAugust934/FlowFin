@@ -45,10 +45,10 @@ title: FlowFin
 | 5.1 | Partial (aguarda validação guiada no celular) | frontend-agent | feature/pwa-offline |
 | 5.1+ | Dispatched (follow-up ícones PNG iPhone) | frontend-agent | feature/pwa-offline |
 | 5.2 | Partial (aguarda validação guiada no celular) | frontend-agent | feature/pwa-offline |
-| 5.3 | Reviewed-Success (pré-merge) | backend-agent | feature/export-lgpd-hardening |
-| 5.3+ | Dispatched (follow-up idempotência client_uuid) | backend-agent | feature/export-lgpd-hardening |
-| 5.4 | Blocked (dep 5.3) | frontend-agent | |
-| 5.5 | Reviewed-Success (pré-merge) | backend-agent | feature/export-lgpd-hardening |
+| 5.3 | Done (merged) | backend-agent | feature/export-lgpd-hardening |
+| 5.3+ | Done (merged — idempotência client_uuid) | backend-agent | feature/export-lgpd-hardening |
+| 5.4 | Dispatched | frontend-agent | feature/ui-export-lgpd-perfil |
+| 5.5 | Done (merged) | backend-agent | feature/export-lgpd-hardening |
 
 ## Worker Tracking
 
@@ -93,6 +93,9 @@ title: FlowFin
 - GITHUB: usuário pediu (24/06, fim do dia) para PUBLICAR no remoto `https://github.com/JohnAugust934/FlowFin` AGORA (antes da Task 6.2). Autorização explícita e durável p/ push. Ver Working Notes de VC se push exigiu auth do usuário.
 - Utilitário: `php artisan db:seed --class=TestDataSeeder` recria usuário de teste (teste@flowfin.com.br/senha1234, e-mail verificado) + dados (idempotente). Commitado em develop.
 - GITHUB push CONFIRMADO concluído (Manager 3, 25/06): `origin/develop`=8318d05 e `main`=cb152b5 sincronizados em `https://github.com/JohnAugust934/FlowFin`. Pendência herdada do handoff 2→3 resolvida.
-- Stage 5 DESPACHADO (Manager 3) em 2 frentes paralelas via worktrees: Frontend lote **5.1+5.2** (`feature/pwa-offline`, worktree `.apm/worktrees/pwa-offline`); Backend lote **5.3+5.5** (`feature/export-lgpd-hardening`, worktree `.apm/worktrees/export-lgpd-hardening`). 5.4 (UI Export/LGPD/Perfil) bloqueada até 5.3 fechar. 5.2 = requisito inegociável zero-perda-de-dados + validação guiada. Verificação holística de fim de Stage 5 prevista (offline→online real + performance).
+- Stage 5 DESPACHADO (Manager 3) em 2 frentes paralelas via worktrees: Frontend lote **5.1+5.2** (`feature/pwa-offline`); Backend lote **5.3+5.5** (`feature/export-lgpd-hardening`). 5.2 = requisito inegociável zero-perda-de-dados + validação guiada. Verificação holística de fim de Stage 5 prevista (offline→online real + performance).
+- **5.3+5.5+idempotência MESCLADOS em develop** (commit merge 3f84a85; branch/worktree removidos). Verificado: composer install (DomPDF), migrate, build, **160/160 testes (518 asserções)**. Endpoints novos (UI 5.4 consome): `GET /api/export/monthly?month=&format=csv|pdf`, `GET /api/export/full` (JSON centavos), `DELETE /api/account` (body `{password}`, reautenticação, **purge físico** LGPD). `POST /api/transactions` aceita `client_uuid` opcional → reenvio do mesmo (mesmo user) devolve a existente (200), unique composto `(user_id, client_uuid)`. Logs do Stage 5 ficaram no repo principal (Workers gravaram via caminho absoluto) — commitados em develop pelo Manager.
+- **Frontend 5.1+5.2 + follow-up ícones PNG**: código pronto/verde (145/145) na branch `feature/pwa-offline` (worktree ativo), **Partial** aguardando validação guiada do usuário no celular (instalar/offline/registrar offline→sincronizar sem duplicar; e ícone correto no iPhone/Android). NÃO mesclar até OK do usuário.
+- **5.4 DESPACHADA** (Frontend, branch `feature/ui-export-lgpd-perfil`, worktree próprio): UI de export (CSV/PDF + dados completos), exclusão de conta com confirmação/senha, e tela de Perfil (renda + retematizar dark — finding pendente desde 2.7). Consome endpoints da 5.3.
 - GIT LESSON (do not repeat): never delete/recreate a feature branch a Worker is using — a Worker commit (2.1, `5ddba2f`) was nearly lost by branch -D + recreate; recovered via the commit object. Manager edits planning docs on `develop` only; feature branches must not modify tracker/index (avoids merge conflicts via 3-way merge).
 
