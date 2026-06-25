@@ -42,11 +42,13 @@ title: FlowFin
 
 | Task | Status | Agent | Branch |
 |------|--------|-------|--------|
-| 5.1 | Dispatched | frontend-agent | feature/pwa-offline |
-| 5.2 | Dispatched | frontend-agent | feature/pwa-offline |
-| 5.3 | Dispatched | backend-agent | feature/export-lgpd-hardening |
+| 5.1 | Partial (aguarda validação guiada no celular) | frontend-agent | feature/pwa-offline |
+| 5.1+ | Dispatched (follow-up ícones PNG iPhone) | frontend-agent | feature/pwa-offline |
+| 5.2 | Partial (aguarda validação guiada no celular) | frontend-agent | feature/pwa-offline |
+| 5.3 | Reviewed-Success (pré-merge) | backend-agent | feature/export-lgpd-hardening |
+| 5.3+ | Dispatched (follow-up idempotência client_uuid) | backend-agent | feature/export-lgpd-hardening |
 | 5.4 | Blocked (dep 5.3) | frontend-agent | |
-| 5.5 | Dispatched | backend-agent | feature/export-lgpd-hardening |
+| 5.5 | Reviewed-Success (pré-merge) | backend-agent | feature/export-lgpd-hardening |
 
 ## Worker Tracking
 
