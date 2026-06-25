@@ -58,7 +58,7 @@
 
                             {{-- Overlay --}}
                             <div x-show="open" x-transition.opacity @click="open = false"
-                                 class="fixed inset-0 z-40 bg-neutral-900/40 dark:bg-black/60 backdrop-blur-sm" style="display:none;"></div>
+                                 class="fixed inset-x-0 bottom-0 top-14 z-40 bg-neutral-900/60 dark:bg-black/70 backdrop-blur-md" style="display:none;"></div>
 
                             {{-- Painel de vidro --}}
                             <div x-show="open"
