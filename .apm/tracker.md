@@ -62,7 +62,14 @@ title: FlowFin
 |------|--------|-------|--------|
 | 7.1 | Dispatched | frontend-agent | feature/landing-page |
 | 7.2 | Dispatched | devops-docs-agent | feature/readme |
-| (features futuras) | Aguardando priorização do usuário | — | — |
+
+**Stage 8:** In Progress (features escolhidas pelo usuário: recorrências + passkeys; Google/CSV/multi-moeda/Open Finance DESCARTADOS)
+
+| Task | Status | Agent | Branch |
+|------|--------|-------|--------|
+| 8.1 | A despachar (após 7.1 liberar Frontend) — Tela de Recorrências (UI; endpoints da 3.1 existem) | frontend-agent | feature/recorrencias |
+| 8.2 | Dispatched — Passkeys WebAuthn backend (login adicional, senha mantida) | backend-agent | feature/passkeys |
+| 8.3 | Blocked (dep 8.2) — Passkeys frontend (ativar no Perfil + entrar com passkey) | frontend-agent | feature/passkeys ou própria |
 
 ## Worker Tracking
 
