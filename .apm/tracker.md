@@ -42,13 +42,14 @@ title: FlowFin
 
 | Task | Status | Agent | Branch |
 |------|--------|-------|--------|
-| 5.1 | Partial (aguarda re-validação no celular) | frontend-agent | feature/pwa-offline |
+| 5.1 | Offline APROVADO; aguarda validar barra inferior | frontend-agent | feature/pwa-offline |
 | 5.1+ | Done (ícones PNG iPhone — na branch) | frontend-agent | feature/pwa-offline |
-| 5.2 | Partial (aguarda re-validação no celular) | frontend-agent | feature/pwa-offline |
+| 5.2 | Offline APROVADO pelo usuário (funcionou no celular) | frontend-agent | feature/pwa-offline |
 | 5.2+ | Done (fix categorias offline — na branch, aceito) | frontend-agent | feature/pwa-offline |
+| 5.2++ | Done (fix barra inferior safe-area iOS — Manager, na branch) | frontend-agent | feature/pwa-offline |
 | 5.3 | Done (merged) | backend-agent | feature/export-lgpd-hardening |
 | 5.3+ | Done (merged — idempotência client_uuid) | backend-agent | feature/export-lgpd-hardening |
-| 5.4 | Dispatched | frontend-agent | feature/ui-export-lgpd-perfil |
+| 5.4 | Reviewed-Success (aguarda validação guiada) | frontend-agent | feature/ui-export-lgpd-perfil |
 | 5.5 | Done (merged) | backend-agent | feature/export-lgpd-hardening |
 
 ## Worker Tracking
@@ -98,7 +99,10 @@ title: FlowFin
 - **5.3+5.5+idempotência MESCLADOS em develop** (commit merge 3f84a85; branch/worktree removidos). Verificado: composer install (DomPDF), migrate, build, **160/160 testes (518 asserções)**. Endpoints novos (UI 5.4 consome): `GET /api/export/monthly?month=&format=csv|pdf`, `GET /api/export/full` (JSON centavos), `DELETE /api/account` (body `{password}`, reautenticação, **purge físico** LGPD). `POST /api/transactions` aceita `client_uuid` opcional → reenvio do mesmo (mesmo user) devolve a existente (200), unique composto `(user_id, client_uuid)`. Logs do Stage 5 ficaram no repo principal (Workers gravaram via caminho absoluto) — commitados em develop pelo Manager.
 - **Frontend 5.1+5.2 + follow-up ícones PNG**: código pronto/verde (145/145) na branch `feature/pwa-offline` (worktree ativo), **Partial** aguardando validação guiada do usuário no celular (instalar/offline/registrar offline→sincronizar sem duplicar; e ícone correto no iPhone/Android). NÃO mesclar até OK do usuário.
 - **5.2+ fix offline ACEITO** (commit `eccf5a3` na branch `feature/pwa-offline`): cache persistente de categorias em `localStorage` (`flowfin:categories`) + `loadCategories` resiliente offline; worker reproduziu o fluxo no DevTools offline; 145/145. Branch `pwa-offline` NÃO mesclada em develop ainda — aguardando re-validação do usuário em dispositivo real (zero-perda-de-dados exige).
-- **Branch de teste `teste/estado-atual` RE-PUBLICADA** no GitHub (commit `ae90594`) com o fix offline + assets rebuildados. Usuário vai reconfirmar no celular: abrir online 1x → modo avião → registrar → reconectar → sincronizar sem duplicar. Após OK: mesclar `pwa-offline` em develop e fechar 5.1/5.2.
+- **OFFLINE APROVADO pelo usuário** (testou no celular, funcionou). Resta só validar 2 itens visuais antes de fechar o Stage 5: a barra inferior ajustada e as telas da 5.4.
+- **5.2++ barra inferior (Manager fez direto na branch `pwa-offline`):** no PWA iOS a bottom-nav ficava colada na borda → conflito com o gesto de voltar à tela inicial. Fix: `pb-[calc(env(safe-area-inset-bottom)+0.75rem)]` na nav + `pb-28` no `<main>`. Build ✓. Aguarda confirmação visual do usuário no iPhone.
+- **5.4 REVIEWED-SUCCESS** (commit `7e4ada8`, branch `feature/ui-export-lgpd-perfil`): Perfil retematizado dark/light (fecha finding 2.7), seção de relatórios (CSV/PDF por mês + export completo LGPD via navegação direta), exclusão de conta LGPD (modal+senha, `DELETE /api/account`, 422 claro). 160/160. Decisões aceitas: acessos dentro do Perfil (sem novo item de nav); exclusão usa endpoint LGPD (não a rota Breeze). NÃO mesclada — aguarda validação guiada do usuário (baixar CSV/PDF/JSON; excluir conta de teste; temas claro/escuro; salvar perfil).
+- **Branch de teste `teste/estado-atual` RE-PUBLICADA** (commit `33fce1a`) = develop + pwa-offline (offline+PNG+barra) + 5.4. Conflito de merge em `components.js` resolvido pelo Manager (mantidos os 4 componentes Alpine: offlineSync, exportData, pwaInstall, accountDeletion); api.js auto-merge ok; build ✓. **MERGE EM DEVELOP PENDENTE** — após OK do usuário, mesclar `feature/pwa-offline` e depois `feature/ui-export-lgpd-perfil` em develop (o 2º merge terá o MESMO conflito em components.js — resolver mantendo os 4 componentes), fechar 5.1/5.2/5.4, remover worktrees/branches. NÃO mesclar a branch de teste em develop (ela tem `public/build` forçado).
 - **5.4 DESPACHADA** (Frontend, branch `feature/ui-export-lgpd-perfil`, worktree próprio): UI export (CSV/PDF + dados completos), exclusão de conta (senha/confirmação), Perfil dark (renda; fecha finding 2.7). Consome endpoints 5.3. Roda em paralelo à re-validação do offline.
 - **DEPLOY DE TESTE (Hostinger, subdomínio + SSH + SSL):** usuário fez o 1º deploy com sucesso a partir da branch **`teste/estado-atual`** (= develop + pwa-offline, com `public/build` commitado à força só nessa branch p/ dispensar Node no servidor). Validação visual OK. `php artisan storage:link` falha na Hostinger (`exec()` desabilitada) — IRRELEVANTE p/ FlowFin; anotar no guia 6.1 p/ criar o symlink de outro jeito. Login de teste: seeder TestDataSeeder (teste@flowfin.com.br/senha1234).
 - **BUG OFFLINE encontrado no teste real (5.2):** offline, o registro de transação fica bloqueado porque o **seletor de categorias carrega só pela rede** (cache só em memória) → lista vazia offline → `canSave` falso (exige category_id). A escrita/fila offline em si está correta. Follow-up 5.2+ despachado: cache persistente de categorias (localStorage/IndexedDB) + loadCategories resiliente offline. Arquivos: `resources/js/flowfin/components.js` (form quick-add, `ensureCategories`/`canSave`) e `api.js`.
