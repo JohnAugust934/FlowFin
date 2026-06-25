@@ -140,7 +140,7 @@
             @endisset
 
             <!-- Conteúdo. Padding inferior no mobile para não cobrir com a barra inferior. -->
-            <main class="pb-24 sm:pb-8">
+            <main class="pb-28 sm:pb-8">
                 {{ $slot }}
             </main>
 
