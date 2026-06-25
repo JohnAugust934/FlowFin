@@ -38,6 +38,16 @@ title: FlowFin
 | 4.3 | Done | frontend-agent | |
 | 4.4 | Done | frontend-agent | |
 
+**Stage 5:** In Progress
+
+| Task | Status | Agent | Branch |
+|------|--------|-------|--------|
+| 5.1 | Dispatched | frontend-agent | feature/pwa-offline |
+| 5.2 | Dispatched | frontend-agent | feature/pwa-offline |
+| 5.3 | Dispatched | backend-agent | feature/export-lgpd-hardening |
+| 5.4 | Blocked (dep 5.3) | frontend-agent | |
+| 5.5 | Dispatched | backend-agent | feature/export-lgpd-hardening |
+
 ## Worker Tracking
 
 | Agent | Instance | Notes |
@@ -80,5 +90,7 @@ title: FlowFin
 - Stage 4 COMPLETO. PARA DEPLOY (6.1): cron único → `php artisan schedule:run` + `QUEUE_CONNECTION=database` ativam o reset diário de streak (job RecalculateStreaks 00:10) — orientar usuário.
 - GITHUB: usuário pediu (24/06, fim do dia) para PUBLICAR no remoto `https://github.com/JohnAugust934/FlowFin` AGORA (antes da Task 6.2). Autorização explícita e durável p/ push. Ver Working Notes de VC se push exigiu auth do usuário.
 - Utilitário: `php artisan db:seed --class=TestDataSeeder` recria usuário de teste (teste@flowfin.com.br/senha1234, e-mail verificado) + dados (idempotente). Commitado em develop.
+- GITHUB push CONFIRMADO concluído (Manager 3, 25/06): `origin/develop`=8318d05 e `main`=cb152b5 sincronizados em `https://github.com/JohnAugust934/FlowFin`. Pendência herdada do handoff 2→3 resolvida.
+- Stage 5 DESPACHADO (Manager 3) em 2 frentes paralelas via worktrees: Frontend lote **5.1+5.2** (`feature/pwa-offline`, worktree `.apm/worktrees/pwa-offline`); Backend lote **5.3+5.5** (`feature/export-lgpd-hardening`, worktree `.apm/worktrees/export-lgpd-hardening`). 5.4 (UI Export/LGPD/Perfil) bloqueada até 5.3 fechar. 5.2 = requisito inegociável zero-perda-de-dados + validação guiada. Verificação holística de fim de Stage 5 prevista (offline→online real + performance).
 - GIT LESSON (do not repeat): never delete/recreate a feature branch a Worker is using — a Worker commit (2.1, `5ddba2f`) was nearly lost by branch -D + recreate; recovered via the commit object. Manager edits planning docs on `develop` only; feature branches must not modify tracker/index (avoids merge conflicts via 3-way merge).
 
