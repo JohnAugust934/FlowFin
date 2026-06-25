@@ -48,6 +48,14 @@ title: FlowFin
 | 5.4 | Done (merged) | frontend-agent | feature/ui-export-lgpd-perfil |
 | 5.5 | Done (merged) | backend-agent | feature/export-lgpd-hardening |
 
+**Stage 6:** In Progress
+
+| Task | Status | Agent | Branch |
+|------|--------|-------|--------|
+| 6.1 | Dispatched | devops-docs-agent | feature/deploy-docs |
+| 6.2 | Dispatched | devops-docs-agent | feature/deploy-docs |
+| 6.3 | Dispatched | devops-docs-agent | feature/deploy-docs |
+
 ## Worker Tracking
 
 | Agent | Instance | Notes |
