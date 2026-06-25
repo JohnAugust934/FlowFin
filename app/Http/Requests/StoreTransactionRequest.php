@@ -35,6 +35,9 @@ class StoreTransactionRequest extends FormRequest
     public function rules(): array
     {
         return [
+            // Chave de idempotência gerada no cliente (camada offline). Opcional:
+            // quando presente, o mesmo valor nunca cria duas transações (ver controller).
+            'client_uuid' => ['nullable', 'uuid'],
             'type' => ['required', Rule::in(['entrada', 'saida'])],
             // Valor em centavos (inteiro), não-negativo.
             'amount' => ['required', 'integer', 'min:0'],

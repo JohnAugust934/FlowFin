@@ -16,7 +16,8 @@ use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
  *
  * Contrato de payload (consumido pela UI e pela camada offline):
  *  - GET    /api/transactions          → lista paginada (20/página), com a categoria embutida.
- *  - POST   /api/transactions          → cria; corpo: { type, amount(centavos), category_id, date, description?, classification?, is_recurring? }
+ *  - POST   /api/transactions          → cria; corpo: { client_uuid?, type, amount(centavos), category_id, date, description?, classification?, is_recurring? }
+ *                                         `client_uuid` (opcional) é a chave de idempotência: reenvio do mesmo valor devolve a transação já criada (200), não duplica.
  *  - GET    /api/transactions/{id}     → mostra uma transação do usuário.
  *  - PUT    /api/transactions/{id}     → atualiza (representação completa).
  *  - DELETE /api/transactions/{id}     → exclui (soft delete).
@@ -63,6 +64,23 @@ class TransactionController extends Controller
     public function store(StoreTransactionRequest $request): JsonResponse
     {
         $data = $request->validated();
+
+        // Idempotência (camada offline): se a requisição traz uma chave `client_uuid`
+        // e já existe uma transação DESTE usuário com essa chave, devolve a existente
+        // (200) em vez de criar uma duplicata. Cobre o caso de borda em que a transação
+        // é gravada mas a resposta se perde e a fila offline reenvia o mesmo POST.
+        if (! empty($data['client_uuid'])) {
+            $existing = $request->user()
+                ->transactions()
+                ->where('client_uuid', $data['client_uuid'])
+                ->first();
+
+            if ($existing !== null) {
+                return TransactionResource::make($existing->load('category'))
+                    ->response()
+                    ->setStatusCode(200);
+            }
+        }
 
         // Classificação só faz sentido para saídas.
         if (($data['type'] ?? null) === 'entrada') {

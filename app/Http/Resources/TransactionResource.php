@@ -23,6 +23,7 @@ class TransactionResource extends JsonResource
     {
         return [
             'id' => $this->id,
+            'client_uuid' => $this->client_uuid,         // chave de idempotência (echo p/ reconciliação offline)
             'type' => $this->type,                       // 'entrada' | 'saida'
             'amount' => $this->amount,                   // centavos (inteiro)
             'category_id' => $this->category_id,
