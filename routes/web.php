@@ -42,6 +42,10 @@ Route::middleware('auth')->group(function () {
     // Pilares de Consciência (insights do mês) e Economia (orçamentos, meta, cortes).
     Route::view('/consciencia', 'insights.consciencia')->name('insights.consciencia');
     Route::view('/economia', 'savings.economia')->name('savings.economia');
+
+    // Pilares de Mentalidade (score, streak, dicas, conteúdos) e Direcionamento (metas, simulador, investimentos).
+    Route::view('/mentalidade', 'mindset.mentalidade')->name('mindset.mentalidade');
+    Route::view('/direcionamento', 'goals.direcionamento')->name('goals.direcionamento');
 });
 
 // API JSON autenticada por sessão (base para a UI e a sincronização offline do PWA).
