@@ -38,4 +38,11 @@ APM_RULES {
 - O usuário não programa e não lê código. Qualquer instrução para ele deve ser **passo a passo, em linguagem leiga**.
 - Quando uma etapa exigir ação em plataforma externa ou credenciais (ex.: configurar SMTP, criar cron, ativar SSL, conectar repositório), **pause** e oriente o usuário com instruções explícitas antes de prosseguir.
 
+## Controle de Versão (GitFlow)
+- Branch base de integração: **`develop`**. A branch **`main`** é reservada para releases de produção.
+- Cada Task recebe sua própria branch de funcionalidade criada a partir de `develop`, nomeada `feature/<descrição>` (descrição do trabalho real, sem termos do APM). Um lote de Tasks sequenciais do mesmo Worker compartilha uma branch.
+- Mensagens de commit: **`tipo: descrição`** com tipos `feat`, `fix`, `refactor`, `docs`, `test`, `chore`. Mensagens em português.
+- Não fazer push para o remoto GitHub por padrão; a conexão do remoto é orientada na Task de deploy.
+- Não commitar artefatos gerados (vendor, node_modules, build) — manter o `.gitignore` atualizado.
+
 } //APM_RULES

@@ -1,0 +1,40 @@
+{
+    "name": "FlowFin — suas finanças no controle",
+    "short_name": "FlowFin",
+    "description": "Acompanhe suas entradas e saídas, metas e orçamentos — direto do seu celular.",
+    "lang": "pt-BR",
+    "dir": "ltr",
+    "start_url": "/dashboard",
+    "scope": "/",
+    "display": "standalone",
+    "orientation": "portrait-primary",
+    "background_color": "#ffffff",
+    "theme_color": "#2563EB",
+    "categories": ["finance", "productivity"],
+    "icons": [
+        {
+            "src": "/img/pwa/app-icon-192.png",
+            "sizes": "192x192",
+            "type": "image/png",
+            "purpose": "any"
+        },
+        {
+            "src": "/img/pwa/app-icon-512.png",
+            "sizes": "512x512",
+            "type": "image/png",
+            "purpose": "any"
+        },
+        {
+            "src": "/img/pwa/app-icon-maskable-512.png",
+            "sizes": "512x512",
+            "type": "image/png",
+            "purpose": "maskable"
+        },
+        {
+            "src": "/img/pwa/app-icon.svg",
+            "sizes": "any",
+            "type": "image/svg+xml",
+            "purpose": "any"
+        }
+    ]
+}
