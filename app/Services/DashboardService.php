@@ -63,44 +63,49 @@ class DashboardService
     {
         $ref = CarbonImmutable::createFromFormat('Y-m', $month)->startOfMonth();
 
-        $series = [];
+        $wanted = [];
         for ($i = $months - 1; $i >= 0; $i--) {
-            $m = $ref->subMonths($i)->format('Y-m');
-            $totals = $this->monthlyTotals($userId, $m);
-            $series[] = [
-                'month' => $m,
-                'entrou' => $totals['entrou'],
-                'saiu' => $totals['saiu'],
-                'sobrou' => $totals['entrou'] - $totals['saiu'],
-            ];
+            $wanted[] = $ref->subMonths($i)->format('Y-m');
         }
 
-        return $series;
-    }
+        // Serve do cache o que der; os meses ausentes saem em UMA query agrupada.
+        $totals = [];
+        $missing = [];
+        foreach ($wanted as $m) {
+            $cached = Cache::get($this->totalsCacheKey($userId, $m));
+            if ($cached !== null) {
+                $totals[$m] = $cached;
+            } else {
+                $missing[] = $m;
+            }
+        }
 
-    /**
-     * Totais entrou/saiu de um mês (centavos), cacheados por usuário+mês.
-     *
-     * @return array{entrou: int, saiu: int}
-     */
-    private function monthlyTotals(int $userId, string $month): array
-    {
-        return Cache::rememberForever($this->totalsCacheKey($userId, $month), function () use ($userId, $month) {
-            $start = CarbonImmutable::createFromFormat('Y-m', $month)->startOfMonth();
-            $range = [$start->toDateString(), $start->endOfMonth()->toDateString()];
+        if ($missing !== []) {
+            $start = CarbonImmutable::createFromFormat('Y-m', min($missing))->startOfMonth();
+            $end = CarbonImmutable::createFromFormat('Y-m', max($missing))->endOfMonth();
 
-            $totals = Transaction::query()
+            $rows = Transaction::query()
                 ->where('user_id', $userId)
-                ->whereBetween('date', $range)
-                ->selectRaw('type, SUM(amount) as total')
-                ->groupBy('type')
-                ->pluck('total', 'type');
+                ->whereBetween('date', [$start->toDateString(), $end->toDateString()])
+                ->selectRaw("substr(date, 1, 7) as ym, type, SUM(amount) as total")
+                ->groupBy('ym', 'type')
+                ->get();
 
-            return [
-                'entrou' => (int) ($totals['entrada'] ?? 0),
-                'saiu' => (int) ($totals['saida'] ?? 0),
-            ];
-        });
+            foreach ($missing as $m) {
+                $totals[$m] = [
+                    'entrou' => (int) $rows->first(fn ($r) => $r->ym === $m && $r->type === 'entrada')?->total,
+                    'saiu' => (int) $rows->first(fn ($r) => $r->ym === $m && $r->type === 'saida')?->total,
+                ];
+                Cache::forever($this->totalsCacheKey($userId, $m), $totals[$m]);
+            }
+        }
+
+        return array_map(fn (string $m) => [
+            'month' => $m,
+            'entrou' => $totals[$m]['entrou'],
+            'saiu' => $totals[$m]['saiu'],
+            'sobrou' => $totals[$m]['entrou'] - $totals[$m]['saiu'],
+        ], $wanted);
     }
 
     /**

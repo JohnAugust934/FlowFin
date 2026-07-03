@@ -4,7 +4,7 @@
 <x-app-layout>
     <x-slot name="header">
         <div>
-            <h1 class="text-xl font-bold text-neutral-800 dark:text-neutral-100">Consciência</h1>
+            <h1 class="font-display text-xl font-bold text-neutral-800 dark:text-neutral-100">Consciência</h1>
             <p class="text-sm text-neutral-500 dark:text-neutral-400">Para onde seu dinheiro está indo</p>
         </div>
     </x-slot>

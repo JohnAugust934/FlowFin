@@ -371,6 +371,7 @@ document.addEventListener('alpine:init', () => {
         loading: true,
         deleting: false,
         confirmingId: null,
+        showFilters: false,
         filters: { date_from: '', date_to: '', category_id: '', type: '' },
 
         async init() {
@@ -457,6 +458,38 @@ document.addEventListener('alpine:init', () => {
             } finally {
                 this.deleting = false;
             }
+        },
+
+        // Agrupa a página atual por dia (ordem já vem do servidor), com rótulo
+        // humano ("Hoje", "Ontem", data) e saldo do dia (entradas − saídas).
+        get groupedItems() {
+            const groups = [];
+            const byDate = new Map();
+            this.items.forEach((tx) => {
+                if (!byDate.has(tx.date)) {
+                    const g = { date: tx.date, label: this.dayLabel(tx.date), items: [], net: 0 };
+                    byDate.set(tx.date, g);
+                    groups.push(g);
+                }
+                const g = byDate.get(tx.date);
+                g.items.push(tx);
+                g.net += tx.type === 'entrada' ? tx.amount : -tx.amount;
+            });
+            return groups.map((g) => ({ ...g, netLabel: (g.net >= 0 ? '+ ' : '− ') + centsToBRL(Math.abs(g.net)) }));
+        },
+
+        dayLabel(iso) {
+            const today = todayISO();
+            if (iso === today) return 'Hoje';
+            const y = new Date();
+            y.setDate(y.getDate() - 1);
+            const yesterday = `${y.getFullYear()}-${String(y.getMonth() + 1).padStart(2, '0')}-${String(y.getDate()).padStart(2, '0')}`;
+            if (iso === yesterday) return 'Ontem';
+            return formatDateBR(iso);
+        },
+
+        get activeFilterCount() {
+            return Object.values(this.filters).filter((v) => v !== '' && v !== null).length;
         },
 
         // Helpers de exibição.
