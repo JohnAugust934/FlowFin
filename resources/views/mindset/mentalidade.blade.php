@@ -5,7 +5,7 @@
 <x-app-layout>
     <x-slot name="header">
         <div>
-            <h1 class="text-xl font-bold text-neutral-800 dark:text-neutral-100">Mentalidade</h1>
+            <h1 class="font-display text-xl font-bold text-neutral-800 dark:text-neutral-100">Mentalidade</h1>
             <p class="text-sm text-neutral-500 dark:text-neutral-400">Seu progresso e bons hábitos com o dinheiro</p>
         </div>
     </x-slot>
@@ -86,7 +86,7 @@
                             <span x-text="streakActive ? '🔥' : '💤'"></span>
                         </div>
                         <div class="min-w-0">
-                            <p class="text-2xl font-extrabold tracking-tight text-neutral-800 dark:text-neutral-100" x-text="streakLabel"></p>
+                            <p class="money text-2xl font-bold tracking-tight text-neutral-800 dark:text-neutral-100" x-text="streakLabel"></p>
                             <p class="text-sm text-neutral-500 dark:text-neutral-400">
                                 <template x-if="streakActive"><span>Continue registrando para manter a chama acesa!</span></template>
                                 <template x-if="!streakActive"><span>Registre uma transação hoje para começar uma nova sequência.</span></template>

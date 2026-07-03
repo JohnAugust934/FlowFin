@@ -3,7 +3,7 @@
     <x-slot name="header">
         <div class="flex items-center justify-between">
             <div>
-                <h1 class="text-xl font-bold text-neutral-800 dark:text-neutral-100">Transações</h1>
+                <h1 class="font-display text-xl font-bold text-neutral-800 dark:text-neutral-100">Transações</h1>
                 <p class="text-sm text-neutral-500 dark:text-neutral-400">Suas entradas e saídas</p>
             </div>
             <button type="button" onclick="window.dispatchEvent(new CustomEvent('open-quick-add'))" class="btn-primary hidden sm:inline-flex">
@@ -14,8 +14,22 @@
 
     <div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-5" x-data="transactionHistory">
 
-        {{-- Filtros --}}
-        <x-card>
+        {{-- Filtros: pílula recolhível para chegar na lista sem poluição --}}
+        <div class="flex items-center justify-between">
+            <button type="button" @click="showFilters = !showFilters"
+                    class="glass inline-flex items-center gap-2 px-4 py-2 !rounded-full text-sm font-semibold text-neutral-700 dark:text-neutral-200 transition hover:bg-white/80 dark:hover:bg-white/10 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
+                    :aria-expanded="showFilters">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 3c2.755 0 5.455.232 8.083.678.533.09.917.556.917 1.096v1.044a2.25 2.25 0 01-.659 1.591l-5.432 5.432a2.25 2.25 0 00-.659 1.591v2.927a2.25 2.25 0 01-1.244 2.013L9.75 21v-6.568a2.25 2.25 0 00-.659-1.591L3.659 7.409A2.25 2.25 0 013 5.818V4.774c0-.54.384-1.006.917-1.096A48.32 48.32 0 0112 3z" /></svg>
+                Filtros
+                <span x-show="activeFilterCount > 0" x-cloak
+                      class="inline-flex items-center justify-center min-w-[1.25rem] h-5 px-1 rounded-full bg-gradient-brand text-white text-[11px] font-bold"
+                      x-text="activeFilterCount"></span>
+            </button>
+            <button type="button" @click="clearFilters()" x-show="hasActiveFilters" x-cloak
+                    class="text-sm font-medium text-brand-600 dark:text-brand-300 hover:underline">Limpar filtros</button>
+        </div>
+
+        <x-card x-show="showFilters" x-cloak x-transition.opacity.duration.150ms>
             <div class="grid gap-3 sm:grid-cols-2">
                 <div>
                     <label class="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-1">De</label>
@@ -64,10 +78,19 @@
             </button>
         </div>
 
-        {{-- Lista --}}
-        <div x-show="!loading && items.length > 0" class="space-y-2.5">
-            <template x-for="tx in items" :key="tx.id">
-                <div class="glass-row shadow-card p-4 flex items-center gap-3.5">
+        {{-- Lista agrupada por dia, com saldo do dia no cabeçalho --}}
+        <div x-show="!loading && items.length > 0" class="space-y-4">
+            <template x-for="group in groupedItems" :key="group.date">
+                <section>
+                    <header class="sticky top-0 z-10 -mx-1 px-1 py-1.5 flex items-baseline justify-between backdrop-blur-sm">
+                        <h2 class="text-xs font-semibold uppercase tracking-wide text-neutral-500 dark:text-neutral-400" x-text="group.label"></h2>
+                        <span class="money text-xs font-semibold"
+                              :class="group.net >= 0 ? 'text-emerald-600 dark:text-emerald-400' : 'text-danger'"
+                              x-text="group.netLabel"></span>
+                    </header>
+                    <div class="mt-1.5 space-y-2.5">
+            <template x-for="tx in group.items" :key="tx.id">
+                <div class="glass-row glass-row-interactive shadow-card p-4 flex items-center gap-3.5">
                     {{-- Ícone da categoria (quadrado arredondado, em destaque) --}}
                     <span class="flex items-center justify-center w-12 h-12 rounded-2xl shrink-0"
                           :style="`background:${tx.category?.color || '#6B7280'}1F; color:${tx.category?.color || '#6B7280'}`"
@@ -78,8 +101,6 @@
                         <p class="font-semibold text-[15px] leading-tight text-neutral-800 dark:text-neutral-100 truncate" x-text="tx.description || categoryName(tx)"></p>
                         <div class="mt-1.5 flex flex-wrap items-center gap-1.5 text-xs text-neutral-500 dark:text-neutral-400">
                             <span class="truncate" x-text="categoryName(tx)"></span>
-                            <span class="text-neutral-300 dark:text-neutral-600">·</span>
-                            <span x-text="dateBR(tx.date)"></span>
                             <template x-if="tx.classification">
                                 <span class="px-2 py-0.5 rounded-full bg-neutral-100/80 dark:bg-neutral-700/50 text-neutral-600 dark:text-neutral-300 capitalize" x-text="tx.classification"></span>
                             </template>
@@ -88,7 +109,7 @@
 
                     {{-- Valor + ações (empilhados, com respiro) --}}
                     <div class="shrink-0 flex flex-col items-end gap-1.5">
-                        <p class="font-bold text-base whitespace-nowrap"
+                        <p class="money font-bold text-base whitespace-nowrap"
                            :class="tx.type === 'entrada' ? 'text-emerald-600 dark:text-emerald-400' : 'text-danger'"
                            x-text="(tx.type === 'entrada' ? '+ ' : '- ') + money(tx.amount)"></p>
 
@@ -111,6 +132,9 @@
                         </template>
                     </div>
                 </div>
+            </template>
+                    </div>
+                </section>
             </template>
         </div>
 

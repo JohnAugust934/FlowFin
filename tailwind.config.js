@@ -25,6 +25,8 @@ export default {
             fontFamily: {
                 // Inter é a fonte da marca; mantém os fallbacks padrão do Tailwind.
                 sans: ['Inter', ...defaultTheme.fontFamily.sans],
+                // Sora é a fonte display: valores monetários e títulos de tela.
+                display: ['Sora Variable', 'Inter', ...defaultTheme.fontFamily.sans],
             },
 
             colors: {

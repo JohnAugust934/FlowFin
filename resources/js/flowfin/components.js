@@ -5,6 +5,7 @@ import { api, ApiError } from './api.js';
 import { offlineQueue } from './offline-queue.js';
 import { centsToBRL, centsToBRLNumber, brlToCents, maskCurrency, formatDateBR, todayISO } from './format.js';
 import { iconSvg } from './icons.js';
+import { renderCategoryDonut, renderHistoryLine, countUp } from './charts.js';
 
 function toast(type, message) {
     window.dispatchEvent(new CustomEvent('toast', { detail: { type, message } }));
@@ -370,6 +371,7 @@ document.addEventListener('alpine:init', () => {
         loading: true,
         deleting: false,
         confirmingId: null,
+        showFilters: false,
         filters: { date_from: '', date_to: '', category_id: '', type: '' },
 
         async init() {
@@ -458,6 +460,38 @@ document.addEventListener('alpine:init', () => {
             }
         },
 
+        // Agrupa a página atual por dia (ordem já vem do servidor), com rótulo
+        // humano ("Hoje", "Ontem", data) e saldo do dia (entradas − saídas).
+        get groupedItems() {
+            const groups = [];
+            const byDate = new Map();
+            this.items.forEach((tx) => {
+                if (!byDate.has(tx.date)) {
+                    const g = { date: tx.date, label: this.dayLabel(tx.date), items: [], net: 0 };
+                    byDate.set(tx.date, g);
+                    groups.push(g);
+                }
+                const g = byDate.get(tx.date);
+                g.items.push(tx);
+                g.net += tx.type === 'entrada' ? tx.amount : -tx.amount;
+            });
+            return groups.map((g) => ({ ...g, netLabel: (g.net >= 0 ? '+ ' : '− ') + centsToBRL(Math.abs(g.net)) }));
+        },
+
+        dayLabel(iso) {
+            const today = todayISO();
+            if (iso === today) return 'Hoje';
+            const y = new Date();
+            y.setDate(y.getDate() - 1);
+            const yesterday = `${y.getFullYear()}-${String(y.getMonth() + 1).padStart(2, '0')}-${String(y.getDate()).padStart(2, '0')}`;
+            if (iso === yesterday) return 'Ontem';
+            return formatDateBR(iso);
+        },
+
+        get activeFilterCount() {
+            return Object.values(this.filters).filter((v) => v !== '' && v !== null).length;
+        },
+
         // Helpers de exibição.
         money(cents) {
             return centsToBRL(cents);
@@ -483,6 +517,8 @@ document.addEventListener('alpine:init', () => {
         error: null,
         month: null,        // "aaaa-mm" de referência
         data: null,         // payload do endpoint
+        sobrouDisplay: 0,   // valor do herói durante a contagem animada
+        _charts: [],        // instâncias Chart.js ativas (destruídas a cada render)
 
         // Paleta de fallback p/ categorias sem cor definida (tons da marca/semáforo).
         palette: ['#2563EB', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6', '#06B6D4', '#EC4899', '#84CC16', '#6B7280'],
@@ -492,6 +528,8 @@ document.addEventListener('alpine:init', () => {
             await this.load();
             // Recarrega quando uma transação é criada/editada em qualquer lugar do app.
             window.addEventListener('transaction-saved', () => this.load());
+            // Redesenha os gráficos ao alternar o tema (cores de grid/tooltip/centro).
+            window.addEventListener('theme-changed', () => this.renderCharts());
         },
 
         async load() {
@@ -500,12 +538,54 @@ document.addEventListener('alpine:init', () => {
             try {
                 this.data = await api.getDashboard(this.month);
                 this.month = this.data.month; // normalizado pelo servidor
+                this.afterLoad();
             } catch (e) {
                 this.error = e.message;
                 toast('error', e.message);
             } finally {
                 this.loading = false;
             }
+        },
+
+        // Assinatura do dashboard: contagem animada do "sobrou", fundo ambiente
+        // reagindo ao resultado do mês e gráficos redesenhados com os dados novos.
+        afterLoad() {
+            const previous = this.sobrouDisplay;
+            countUp(previous, this.totals.sobrou, (v) => { this.sobrouDisplay = v; });
+
+            const canvas = document.querySelector('.app-canvas');
+            if (canvas) {
+                canvas.classList.toggle('canvas-positive', this.totals.sobrou >= 0);
+                canvas.classList.toggle('canvas-negative', this.totals.sobrou < 0);
+            }
+
+            this.$nextTick(() => this.renderCharts());
+        },
+
+        renderCharts() {
+            this._charts.forEach((c) => c.destroy());
+            this._charts = [];
+
+            this.$nextTick(() => {
+                const donut = this.$refs.donutChart;
+                if (donut && this.hasCategoryData) {
+                    this._charts.push(renderCategoryDonut(donut, this.categoryBreakdown));
+                }
+                const history = this.$refs.historyChart;
+                if (history && this.hasHistory) {
+                    this._charts.push(renderHistoryLine(history, this.history));
+                }
+            });
+        },
+
+        get history() {
+            return this.data?.history ?? [];
+        },
+        get hasHistory() {
+            return this.history.some((m) => m.entrou > 0 || m.saiu > 0);
+        },
+        get sobrouDisplayLabel() {
+            return centsToBRL(this.sobrouDisplay);
         },
 
         // --- Navegação de mês ---

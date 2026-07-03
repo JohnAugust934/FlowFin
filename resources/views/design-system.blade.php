@@ -7,7 +7,7 @@
     <x-slot name="header">
         <div class="flex items-center justify-between">
             <div>
-                <h1 class="text-xl font-bold text-neutral-800">Design System</h1>
+                <h1 class="font-display text-xl font-bold text-neutral-800">Design System</h1>
                 <p class="text-sm text-neutral-500">Página de demonstração (desenvolvimento)</p>
             </div>
             <x-badge status="neutral">DEV</x-badge>
@@ -95,9 +95,11 @@
 
         {{-- TIPOGRAFIA --}}
         <section>
-            <h2 class="text-lg font-semibold text-neutral-800 mb-3">Tipografia — Inter</h2>
+            <h2 class="text-lg font-semibold text-neutral-800 mb-3">Tipografia — Inter (corpo) + Sora (display)</h2>
             <x-card>
                 <div class="space-y-2">
+                    <p class="font-display text-3xl font-bold text-neutral-900">Sobrou neste mês <span class="font-sans text-neutral-400 text-base font-normal">— Sora, títulos e destaques</span></p>
+                    <p class="money text-2xl font-bold text-brand-600">R$ 1.234,56 <span class="font-sans text-neutral-400 text-sm font-normal">— .money: Sora + algarismos tabulares</span></p>
                     <p class="text-3xl font-extrabold text-neutral-900">FlowFin <span class="text-neutral-400 text-base font-normal">— peso 800 (marca)</span></p>
                     <p class="text-xl font-bold">Quase tudo o que você precisa <span class="text-neutral-400 text-sm font-normal">— 700</span></p>
                     <p class="text-lg font-semibold">Resumo do mês <span class="text-neutral-400 text-sm font-normal">— 600</span></p>
