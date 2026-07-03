@@ -41,6 +41,58 @@ class DashboardApiTest extends TestCase
             ]);
     }
 
+    public function test_it_returns_the_six_month_history_series(): void
+    {
+        $user = User::factory()->create();
+        $category = Category::factory()->predefined()->create();
+
+        // Mês de referência e dois meses anteriores com movimento.
+        Transaction::factory()->create([
+            'user_id' => $user->id, 'type' => 'entrada', 'amount' => 30000,
+            'category_id' => $category->id, 'date' => '2026-06-05', 'classification' => null,
+        ]);
+        Transaction::factory()->create([
+            'user_id' => $user->id, 'type' => 'saida', 'amount' => 10000,
+            'category_id' => $category->id, 'date' => '2026-05-15', 'classification' => 'necessidade',
+        ]);
+        Transaction::factory()->create([
+            'user_id' => $user->id, 'type' => 'entrada', 'amount' => 20000,
+            'category_id' => $category->id, 'date' => '2026-04-20', 'classification' => null,
+        ]);
+
+        $response = $this->actingAs($user)->getJson('/api/dashboard?month=2026-06');
+
+        $response->assertOk()
+            ->assertJsonCount(6, 'history')
+            ->assertJsonPath('history.0.month', '2026-01')
+            ->assertJsonPath('history.5.month', '2026-06')
+            ->assertJsonPath('history.5.entrou', 30000)
+            ->assertJsonPath('history.4.saiu', 10000)
+            ->assertJsonPath('history.3.entrou', 20000)
+            ->assertJsonPath('history.3.sobrou', 20000);
+    }
+
+    public function test_history_reflects_changes_after_cache_invalidation(): void
+    {
+        $user = User::factory()->create();
+        $category = Category::factory()->predefined()->create();
+
+        // Primeiro acesso aquece o cache com o mês anterior zerado.
+        $this->actingAs($user)->getJson('/api/dashboard?month=2026-06')
+            ->assertOk()
+            ->assertJsonPath('history.4.entrou', 0);
+
+        // Nova transação no mês anterior deve invalidar o cache dos totais dele.
+        Transaction::factory()->create([
+            'user_id' => $user->id, 'type' => 'entrada', 'amount' => 5000,
+            'category_id' => $category->id, 'date' => '2026-05-10', 'classification' => null,
+        ]);
+
+        $this->actingAs($user)->getJson('/api/dashboard?month=2026-06')
+            ->assertOk()
+            ->assertJsonPath('history.4.entrou', 5000);
+    }
+
     public function test_it_defaults_to_the_current_month(): void
     {
         $user = User::factory()->create();

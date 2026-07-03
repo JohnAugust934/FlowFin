@@ -26,6 +26,11 @@ class DashboardService
         return "dashboard:{$userId}:{$month}";
     }
 
+    public function totalsCacheKey(int $userId, string $month): string
+    {
+        return "dashboard:totals:{$userId}:{$month}";
+    }
+
     /**
      * Retorna os agregados do mês para o usuário, servindo do cache quando disponível.
      *
@@ -36,10 +41,66 @@ class DashboardService
     {
         $month = $this->normalizeMonth($month);
 
-        return Cache::rememberForever(
+        $data = Cache::rememberForever(
             $this->cacheKey($user->id, $month),
             fn () => $this->compute($user->id, $month),
         );
+
+        // A série histórica cruza meses; fica fora do cache do payload mensal e
+        // se apoia nos totais por mês (cada um cacheado e invalidado por si).
+        $data['history'] = $this->history($user->id, $month);
+
+        return $data;
+    }
+
+    /**
+     * Série "entrou/saiu" dos últimos 6 meses (incluindo o de referência),
+     * em ordem cronológica — base do gráfico de linha do dashboard.
+     *
+     * @return array<int, array<string, mixed>>
+     */
+    public function history(int $userId, string $month, int $months = 6): array
+    {
+        $ref = CarbonImmutable::createFromFormat('Y-m', $month)->startOfMonth();
+
+        $series = [];
+        for ($i = $months - 1; $i >= 0; $i--) {
+            $m = $ref->subMonths($i)->format('Y-m');
+            $totals = $this->monthlyTotals($userId, $m);
+            $series[] = [
+                'month' => $m,
+                'entrou' => $totals['entrou'],
+                'saiu' => $totals['saiu'],
+                'sobrou' => $totals['entrou'] - $totals['saiu'],
+            ];
+        }
+
+        return $series;
+    }
+
+    /**
+     * Totais entrou/saiu de um mês (centavos), cacheados por usuário+mês.
+     *
+     * @return array{entrou: int, saiu: int}
+     */
+    private function monthlyTotals(int $userId, string $month): array
+    {
+        return Cache::rememberForever($this->totalsCacheKey($userId, $month), function () use ($userId, $month) {
+            $start = CarbonImmutable::createFromFormat('Y-m', $month)->startOfMonth();
+            $range = [$start->toDateString(), $start->endOfMonth()->toDateString()];
+
+            $totals = Transaction::query()
+                ->where('user_id', $userId)
+                ->whereBetween('date', $range)
+                ->selectRaw('type, SUM(amount) as total')
+                ->groupBy('type')
+                ->pluck('total', 'type');
+
+            return [
+                'entrou' => (int) ($totals['entrada'] ?? 0),
+                'saiu' => (int) ($totals['saida'] ?? 0),
+            ];
+        });
     }
 
     /**
@@ -48,6 +109,7 @@ class DashboardService
     public function forget(int $userId, string $month): void
     {
         Cache::forget($this->cacheKey($userId, $month));
+        Cache::forget($this->totalsCacheKey($userId, $month));
     }
 
     /**

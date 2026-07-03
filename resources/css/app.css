@@ -5,6 +5,9 @@
 @import '@fontsource/inter/700.css';
 @import '@fontsource/inter/800.css';
 
+/* Sora (variável) — fonte display para valores monetários e títulos. */
+@import '@fontsource-variable/sora';
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -88,6 +91,36 @@
             radial-gradient(40rem 40rem at 108% 6%, rgba(16, 185, 129, 0.16), transparent 55%);
     }
 
+    /* O fundo reage ao resultado do mês no dashboard: mais verde quando
+       sobrou, âmbar/vermelho sutil quando faltou. Transição suave. */
+    .app-canvas {
+        transition: background-color 0.6s ease;
+    }
+
+    .app-canvas.canvas-positive {
+        background-image:
+            radial-gradient(42rem 42rem at 12% -8%, rgba(16, 185, 129, 0.18), transparent 60%),
+            radial-gradient(38rem 38rem at 108% 6%, rgba(37, 99, 235, 0.12), transparent 55%);
+    }
+
+    .dark .app-canvas.canvas-positive {
+        background-image:
+            radial-gradient(44rem 44rem at 12% -8%, rgba(16, 185, 129, 0.24), transparent 60%),
+            radial-gradient(40rem 40rem at 108% 6%, rgba(37, 99, 235, 0.18), transparent 55%);
+    }
+
+    .app-canvas.canvas-negative {
+        background-image:
+            radial-gradient(42rem 42rem at 12% -8%, rgba(239, 68, 68, 0.12), transparent 60%),
+            radial-gradient(38rem 38rem at 108% 6%, rgba(245, 158, 11, 0.12), transparent 55%);
+    }
+
+    .dark .app-canvas.canvas-negative {
+        background-image:
+            radial-gradient(44rem 44rem at 12% -8%, rgba(239, 68, 68, 0.18), transparent 60%),
+            radial-gradient(40rem 40rem at 108% 6%, rgba(245, 158, 11, 0.14), transparent 55%);
+    }
+
     /* Superfície de vidro principal (painéis em destaque do dashboard). */
     .glass {
         @apply rounded-3xl border shadow-glass;
@@ -138,5 +171,40 @@
     .dark .glass-row {
         background-color: rgba(26, 32, 49, 0.60);
         border-color: rgba(255, 255, 255, 0.06);
+    }
+
+    /* Feedback tátil discreto nas linhas interativas de lista. */
+    .glass-row-interactive {
+        @apply transition duration-150 ease-out;
+    }
+    .glass-row-interactive:hover {
+        background-color: rgba(255, 255, 255, 0.85);
+    }
+    .dark .glass-row-interactive:hover {
+        background-color: rgba(32, 40, 60, 0.75);
+    }
+    .glass-row-interactive:active {
+        transform: scale(0.995);
+    }
+}
+
+@layer utilities {
+    /* Valores monetários: fonte display com algarismos tabulares
+       (alinhamento estável em listas e durante a contagem animada). */
+    .money {
+        @apply font-display;
+        font-variant-numeric: tabular-nums;
+        font-feature-settings: 'tnum';
+    }
+}
+
+/* Acessibilidade: sem movimento para quem prefere assim. */
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
     }
 }
