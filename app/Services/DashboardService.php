@@ -26,6 +26,11 @@ class DashboardService
         return "dashboard:{$userId}:{$month}";
     }
 
+    public function totalsCacheKey(int $userId, string $month): string
+    {
+        return "dashboard:totals:{$userId}:{$month}";
+    }
+
     /**
      * Retorna os agregados do mês para o usuário, servindo do cache quando disponível.
      *
@@ -36,10 +41,71 @@ class DashboardService
     {
         $month = $this->normalizeMonth($month);
 
-        return Cache::rememberForever(
+        $data = Cache::rememberForever(
             $this->cacheKey($user->id, $month),
             fn () => $this->compute($user->id, $month),
         );
+
+        // A série histórica cruza meses; fica fora do cache do payload mensal e
+        // se apoia nos totais por mês (cada um cacheado e invalidado por si).
+        $data['history'] = $this->history($user->id, $month);
+
+        return $data;
+    }
+
+    /**
+     * Série "entrou/saiu" dos últimos 6 meses (incluindo o de referência),
+     * em ordem cronológica — base do gráfico de linha do dashboard.
+     *
+     * @return array<int, array<string, mixed>>
+     */
+    public function history(int $userId, string $month, int $months = 6): array
+    {
+        $ref = CarbonImmutable::createFromFormat('Y-m', $month)->startOfMonth();
+
+        $wanted = [];
+        for ($i = $months - 1; $i >= 0; $i--) {
+            $wanted[] = $ref->subMonths($i)->format('Y-m');
+        }
+
+        // Serve do cache o que der; os meses ausentes saem em UMA query agrupada.
+        $totals = [];
+        $missing = [];
+        foreach ($wanted as $m) {
+            $cached = Cache::get($this->totalsCacheKey($userId, $m));
+            if ($cached !== null) {
+                $totals[$m] = $cached;
+            } else {
+                $missing[] = $m;
+            }
+        }
+
+        if ($missing !== []) {
+            $start = CarbonImmutable::createFromFormat('Y-m', min($missing))->startOfMonth();
+            $end = CarbonImmutable::createFromFormat('Y-m', max($missing))->endOfMonth();
+
+            $rows = Transaction::query()
+                ->where('user_id', $userId)
+                ->whereBetween('date', [$start->toDateString(), $end->toDateString()])
+                ->selectRaw("substr(date, 1, 7) as ym, type, SUM(amount) as total")
+                ->groupBy('ym', 'type')
+                ->get();
+
+            foreach ($missing as $m) {
+                $totals[$m] = [
+                    'entrou' => (int) $rows->first(fn ($r) => $r->ym === $m && $r->type === 'entrada')?->total,
+                    'saiu' => (int) $rows->first(fn ($r) => $r->ym === $m && $r->type === 'saida')?->total,
+                ];
+                Cache::forever($this->totalsCacheKey($userId, $m), $totals[$m]);
+            }
+        }
+
+        return array_map(fn (string $m) => [
+            'month' => $m,
+            'entrou' => $totals[$m]['entrou'],
+            'saiu' => $totals[$m]['saiu'],
+            'sobrou' => $totals[$m]['entrou'] - $totals[$m]['saiu'],
+        ], $wanted);
     }
 
     /**
@@ -48,6 +114,7 @@ class DashboardService
     public function forget(int $userId, string $month): void
     {
         Cache::forget($this->cacheKey($userId, $month));
+        Cache::forget($this->totalsCacheKey($userId, $month));
     }
 
     /**

@@ -4,7 +4,7 @@
 <x-app-layout>
     <x-slot name="header">
         <div>
-            <h1 class="text-xl font-bold text-neutral-800 dark:text-neutral-100">Direcionamento</h1>
+            <h1 class="font-display text-xl font-bold text-neutral-800 dark:text-neutral-100">Direcionamento</h1>
             <p class="text-sm text-neutral-500 dark:text-neutral-400">Metas com propósito, simulações e investimentos</p>
         </div>
     </x-slot>
@@ -193,7 +193,7 @@
                     {{-- Total investido --}}
                     <div class="glass-row p-3 mb-4 flex items-baseline justify-between">
                         <span class="text-sm text-neutral-500 dark:text-neutral-400">Total investido</span>
-                        <span class="text-lg font-extrabold tracking-tight text-emerald-600 dark:text-emerald-400" x-text="totalInvestedLabel"></span>
+                        <span class="money text-lg font-bold tracking-tight text-emerald-600 dark:text-emerald-400" x-text="totalInvestedLabel"></span>
                     </div>
 
                     {{-- Formulário de investimento (criar/editar) --}}

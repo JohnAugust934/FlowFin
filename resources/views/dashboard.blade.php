@@ -5,7 +5,7 @@
     <x-slot name="header">
         <div class="flex items-center justify-between">
             <div>
-                <h1 class="text-xl font-bold text-neutral-800 dark:text-neutral-100">Resumo do mês</h1>
+                <h1 class="font-display text-xl font-bold text-neutral-800 dark:text-neutral-100">Resumo do mês</h1>
                 <p class="text-sm text-neutral-500 dark:text-neutral-400">Quanto entrou, quanto saiu e o que sobrou</p>
             </div>
             <button type="button" onclick="window.dispatchEvent(new CustomEvent('open-quick-add'))" class="btn-primary hidden sm:inline-flex">
@@ -48,9 +48,9 @@
                          :class="totals.sobrou >= 0 ? 'bg-emerald-400/40' : 'bg-danger/40'"></div>
 
                     <p class="text-sm font-medium text-neutral-500 dark:text-neutral-400">Sobrou neste mês</p>
-                    <p class="mt-1 text-4xl sm:text-5xl font-extrabold tracking-tight break-words"
+                    <p class="money mt-1 text-4xl sm:text-5xl font-bold tracking-tight break-words"
                        :class="totals.sobrou >= 0 ? 'text-brand-600 dark:text-brand-300' : 'text-danger'"
-                       x-text="money(totals.sobrou)"></p>
+                       x-text="sobrouDisplayLabel"></p>
                     <p class="mt-1 text-xs text-neutral-400 dark:text-neutral-500"
                        x-text="totals.sobrou >= 0 ? 'Você fechou o mês no positivo.' : 'As saídas passaram das entradas neste mês.'"></p>
 
@@ -63,7 +63,7 @@
                                 </span>
                                 Entrou
                             </div>
-                            <p class="mt-1 text-lg font-bold text-emerald-600 dark:text-emerald-400 break-words" x-text="money(totals.entrou)"></p>
+                            <p class="money mt-1 text-lg font-bold text-emerald-600 dark:text-emerald-400 break-words" x-text="money(totals.entrou)"></p>
                         </div>
                         <div class="glass-row p-3">
                             <div class="flex items-center gap-1.5 text-xs font-medium text-neutral-500 dark:text-neutral-400">
@@ -72,7 +72,7 @@
                                 </span>
                                 Saiu
                             </div>
-                            <p class="mt-1 text-lg font-bold text-danger break-words" x-text="money(totals.saiu)"></p>
+                            <p class="money mt-1 text-lg font-bold text-danger break-words" x-text="money(totals.saiu)"></p>
                         </div>
                     </div>
                 </div>
@@ -81,19 +81,9 @@
                 <x-card title="Para onde foi o dinheiro" subtitle="Saídas por categoria no mês">
                     {{-- Com dados --}}
                     <div x-show="hasCategoryData" class="space-y-4">
-                        {{-- Total + barra de visão geral (composição das saídas) --}}
-                        <div>
-                            <div class="flex items-baseline justify-between">
-                                <span class="text-[11px] uppercase tracking-wide text-neutral-400 dark:text-neutral-500">Total de saídas</span>
-                                <span class="text-lg font-extrabold tracking-tight text-neutral-800 dark:text-neutral-100" x-text="totalSaidasLabel"></span>
-                            </div>
-                            <div class="mt-2 flex w-full h-2.5 rounded-full overflow-hidden bg-neutral-200/70 dark:bg-neutral-700/50">
-                                <template x-for="cat in categoryBreakdown" :key="cat.id">
-                                    <div class="h-full first:rounded-l-full last:rounded-r-full transition-all duration-500"
-                                         :style="`width: ${cat.pct}%; background-color: ${cat.color}`"
-                                         :title="`${cat.name}: ${cat.pctLabel}`"></div>
-                                </template>
-                            </div>
+                        {{-- Rosca com o total de saídas no centro --}}
+                        <div class="relative h-52 sm:h-60">
+                            <canvas x-ref="donutChart" aria-label="Gráfico de saídas por categoria" role="img"></canvas>
                         </div>
 
                         {{-- Ranking de categorias --}}
@@ -108,7 +98,7 @@
                                         <div class="min-w-0 flex-1">
                                             <div class="flex items-baseline justify-between gap-2">
                                                 <span class="font-medium text-[15px] text-neutral-800 dark:text-neutral-100 truncate" x-text="cat.name"></span>
-                                                <span class="font-bold text-neutral-800 dark:text-neutral-100 whitespace-nowrap" x-text="cat.moneyLabel"></span>
+                                                <span class="money font-bold text-neutral-800 dark:text-neutral-100 whitespace-nowrap" x-text="cat.moneyLabel"></span>
                                             </div>
                                             {{-- Barra de proporção da categoria --}}
                                             <div class="mt-1.5 flex items-center gap-2">
@@ -157,7 +147,7 @@
                                             <div class="min-w-0 flex-1">
                                                 <div class="flex items-baseline justify-between gap-2">
                                                     <span class="font-medium text-[15px] text-neutral-800 dark:text-neutral-100 truncate" x-text="row.name"></span>
-                                                    <span class="font-bold text-neutral-800 dark:text-neutral-100 whitespace-nowrap" x-text="row.moneyLabel"></span>
+                                                    <span class="money font-bold text-neutral-800 dark:text-neutral-100 whitespace-nowrap" x-text="row.moneyLabel"></span>
                                                 </div>
                                                 <div class="mt-1.5 flex items-center gap-2">
                                                     <div class="flex-1 h-1.5 rounded-full overflow-hidden bg-neutral-200/60 dark:bg-neutral-700/40">
@@ -183,6 +173,16 @@
                     <template x-if="!hasClassification">
                         <p class="text-center text-neutral-500 dark:text-neutral-400 py-6">Classifique suas saídas como necessidade ou desejo para ver a proporção aqui.</p>
                     </template>
+                </x-card>
+
+                {{-- Evolução dos últimos meses: entrou vs. saiu --}}
+                <x-card title="Sua evolução" subtitle="Entradas e saídas dos últimos 6 meses">
+                    <div x-show="hasHistory" class="relative h-56 sm:h-64">
+                        <canvas x-ref="historyChart" aria-label="Gráfico de evolução mensal de entradas e saídas" role="img"></canvas>
+                    </div>
+                    <p x-show="!hasHistory" class="text-center text-neutral-500 dark:text-neutral-400 py-6">
+                        Registre suas transações para acompanhar a evolução mês a mês aqui.
+                    </p>
                 </x-card>
             </div>
         </template>

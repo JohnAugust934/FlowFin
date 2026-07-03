@@ -5,7 +5,7 @@
 <x-app-layout>
     <x-slot name="header">
         <div>
-            <h1 class="text-xl font-bold text-neutral-800 dark:text-neutral-100">Economia</h1>
+            <h1 class="font-display text-xl font-bold text-neutral-800 dark:text-neutral-100">Economia</h1>
             <p class="text-sm text-neutral-500 dark:text-neutral-400">Metas, limites e onde cortar gastos</p>
         </div>
     </x-slot>
@@ -60,7 +60,7 @@
                     <template x-if="hasGoal && !goalForm.open">
                         <div class="mt-3 space-y-3">
                             <div class="flex items-baseline justify-between gap-2">
-                                <span class="text-2xl font-extrabold tracking-tight text-neutral-800 dark:text-neutral-100" x-text="goalView.savedLabel"></span>
+                                <span class="money text-2xl font-bold tracking-tight text-neutral-800 dark:text-neutral-100" x-text="goalView.savedLabel"></span>
                                 <span class="text-sm text-neutral-500 dark:text-neutral-400">de <span x-text="goalView.goalLabel"></span></span>
                             </div>
                             <div class="w-full h-2.5 bg-neutral-200 dark:bg-neutral-700/50 rounded-full overflow-hidden">
@@ -212,7 +212,7 @@
                         <div class="space-y-4">
                             <div class="glass-row p-3 flex items-baseline justify-between">
                                 <span class="text-sm text-neutral-500 dark:text-neutral-400">Impacto somado por mês</span>
-                                <span class="text-lg font-extrabold tracking-tight text-neutral-800 dark:text-neutral-100" x-text="invisibleTotalLabel"></span>
+                                <span class="money text-lg font-bold tracking-tight text-neutral-800 dark:text-neutral-100" x-text="invisibleTotalLabel"></span>
                             </div>
                             <ul class="space-y-3">
                                 <template x-for="it in invisibleItems" :key="it.id">
@@ -248,7 +248,7 @@
                         <div class="space-y-4">
                             <div class="glass-row p-3 flex items-baseline justify-between">
                                 <span class="text-sm text-neutral-500 dark:text-neutral-400">Economia possível por mês</span>
-                                <span class="text-lg font-extrabold tracking-tight text-emerald-600 dark:text-emerald-400" x-text="potentialSavingsLabel"></span>
+                                <span class="money text-lg font-bold tracking-tight text-emerald-600 dark:text-emerald-400" x-text="potentialSavingsLabel"></span>
                             </div>
                             <ul class="space-y-2.5">
                                 <template x-for="(s, i) in suggestions" :key="i">
